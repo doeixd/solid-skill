@@ -1,0 +1,71 @@
+{
+  "skill_name": "solid-js-2.x-migration",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Migrate this Solid 1.x component to Solid 2.x beta and explain which changes are mechanical versus semantic.\n\n```tsx\nimport { createResource, Index, onMount } from 'solid-js';\nimport { render } from 'solid-js/web';\n\nfunction App() {\n  const [users] = createResource(fetchUsers);\n\n  onMount(() => {\n    console.log('mounted');\n  });\n\n  return (\n    <Suspense fallback={<div>Loading...</div>}>\n      <Index each={users() || []}>{user => <div>{user().name}</div>}</Index>\n    </Suspense>\n  );\n}\n\nrender(() => <App />, document.getElementById('app'));\n```",
+      "expected_output": "A migration with package import changes, boundary changes, list migration, and commentary on the more semantic async and lifecycle updates.",
+      "files": [],
+      "assertions": [
+        "Separates mechanical changes from semantic rewrites.",
+        "Covers the render import move to @solidjs/web.",
+        "Addresses createResource, Loading, Index to For keyed={false}, and onSettled."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "After moving a Solid app to 2.x next, these tests started failing because state reads happen immediately after setters. Explain the issue and show the safest fix strategy.\n\n```ts\nconst [count, setCount] = createSignal(0);\nsetCount(1);\nexpect(count()).toBe(1);\n```",
+      "expected_output": "A migration-oriented explanation of microtask batching, when flush is appropriate, and how not to overuse it.",
+      "files": [],
+      "assertions": [
+        "Explains the new batching behavior in migration terms.",
+        "Recommends narrow use of flush, especially in tests.",
+        "Does not suggest scattering flush everywhere as a blanket fix."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a Solid 1.x codebase with lots of setStore('user', 'name', value) updates and a few effects that copy state from one signal to another. Give me a safe migration strategy to Solid 2.x beta that does not require rewriting everything at once.",
+      "expected_output": "A staged migration plan that distinguishes draft-first stores from compatibility helpers like storePath, and that replaces write-back effects carefully.",
+      "files": [],
+      "assertions": [
+        "Recommends draft-first store updates as the long-term target.",
+        "Uses storePath as a compatibility bridge rather than the end state.",
+        "Treats effect-based state copying as a semantic rewrite concern."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I upgraded a pnpm monorepo package to Solid 2 next and now one linked package is causing hydration weirdness and duplicate reactive graphs. What should I check first, and what is the safest migration-era fix?",
+      "expected_output": "A migration-oriented explanation that checks for duplicate Solid copies, linked-package dedupe issues, and version alignment before making code-level changes.",
+      "files": [],
+      "assertions": [
+        "Mentions duplicate Solid versions or linked-package dedupe issues.",
+        "Suggests checking package versions and dedupe configuration before rewriting app code.",
+        "Frames this as an ecosystem migration issue rather than a generic component bug."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Help me migrate this Vite test setup during a Solid 2 beta upgrade. My tests use @solidjs/testing-library and started breaking after the move. I want the safest migration checklist, not a random config dump.",
+      "expected_output": "A migration checklist that discusses temporary aliasing, package-version verification, and the reality of ecosystem lag during the beta period.",
+      "files": [],
+      "assertions": [
+        "Mentions testing-library ecosystem lag or temporary compatibility workarounds.",
+        "Mentions alias checks such as solid-js/web to @solidjs/web or solid-js/store to solid-js when appropriate.",
+        "Presents the guidance as migration-era triage rather than permanent unquestioned config."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I am migrating this old pattern and I do not want a generic Solid 2 API explanation. I need the migration reasoning.\n\n```ts\nconst isSelected = createSelector(selectedId);\ncreateComputed(() => {\n  setValue(props.input);\n});\n```",
+      "expected_output": "A migration-focused explanation that chooses replacements by intent, such as createProjection or function-form stores for selector-like logic and createMemo, writable derived state, or split effects for createComputed replacement.",
+      "files": [],
+      "assertions": [
+        "Treats createSelector and createComputed as migration hotspots rather than simple renames.",
+        "Chooses replacements by intent.",
+        "Keeps the response migration-oriented instead of turning into a generic API tour."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "skill_name": "solid-js-2.x-api-changes-and-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Solid 2.x beta component that loads a profile from an async computation, shows a spinner during initial load with Loading, and explains how the code differs from a Solid 1.x createResource plus Suspense approach.",
+      "expected_output": "A Solid 2.x beta-oriented example using current 2.x async patterns and a short explanation of the 1.x to 2.x difference.",
+      "files": [],
+      "assertions": [
+        "Uses a 2.x async computation rather than createResource.",
+        "Uses Loading for initial readiness.",
+        "Explains the difference from the 1.x createResource plus Suspense model."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I am getting a top-level reactive read warning in Solid 2. Explain what is wrong with this code and fix it.\n\n```tsx\nfunction Title(props) {\n  const title = props.title;\n  return <h1>{title}</h1>;\n}\n```",
+      "expected_output": "An explanation of the Solid 2 top-level reactive read warning and a corrected 2.x-idiomatic version.",
+      "files": [],
+      "assertions": [
+        "Explains that the top-level prop read is the problem.",
+        "Shows a corrected version that reads props.title directly in JSX.",
+        "Frames the fix in Solid 2 reactive-read terms rather than generic style advice."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this Solid 2.x beta snippet and rewrite it in a more idiomatic 2.x style if needed. Be specific about batching, effect phases, and any API changes.\n\n```tsx\nimport { createEffect, createSignal, onMount } from 'solid-js';\n\nfunction Widget() {\n  const [count, setCount] = createSignal(0);\n\n  onMount(() => {\n    setCount(1);\n    console.log(count());\n  });\n\n  createEffect(() => {\n    document.title = String(count());\n  });\n}\n```",
+      "expected_output": "A review that addresses onSettled, batching visibility, and split effect guidance in Solid 2.x beta.",
+      "files": [],
+      "assertions": [
+        "Mentions that immediate reads after setters do not observe updates until flush.",
+        "Addresses onMount to onSettled migration.",
+        "Explains split createEffect guidance or shows compute/apply form."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I am writing a new Solid 2.x beta table component and I used Index because I wanted non-keyed behavior. Show the correct 2.x rewrite and explain any callback-signature differences.\n\n```tsx\n<Index each={rows()}>{(row, i) => <Row row={row().name} index={i} />}</Index>\n```",
+      "expected_output": "A rewrite using For keyed={false} with the correct accessor-based callback shape and a brief explanation of the child callback differences.",
+      "files": [],
+      "assertions": [
+        "Replaces Index with For keyed={false}.",
+        "Uses accessor reads correctly for both item and index where appropriate.",
+        "Explains that the migration is not just a rename."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Show me the Solid 2.x beta way to turn this old directive and classList usage into current code. Explain the DOM-model changes briefly.\n\n```tsx\n<button\n  use:tooltip={{ content: 'Save' }}\n  classList={{ active: isActive(), disabled: isDisabled() }}\n  attr:data-id={id()}\n>\n  Save\n</button>\n```",
+      "expected_output": "A rewrite using ref-based directive factories, class object or array syntax, and standard attribute behavior, plus a concise explanation of the DOM changes.",
+      "files": [],
+      "assertions": [
+        "Replaces use: with ref callback or directive factory syntax.",
+        "Replaces classList with class object or array usage.",
+        "Removes attr: and uses standard attribute behavior."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want a Solid 2.x beta example for a todo mutation flow that shows optimistic UI and then refreshes the source of truth. Do not answer with SolidStart forms or router actions; keep it at the Solid core primitive level.",
+      "expected_output": "A Solid 2.x beta example using action plus optimistic primitives and refresh, with no SolidStart-specific router or form patterns mixed in.",
+      "files": [],
+      "assertions": [
+        "Uses action for the mutation flow.",
+        "Uses createOptimistic or createOptimisticStore for optimistic UI.",
+        "Uses refresh and avoids SolidStart-specific route or form APIs."
+      ]
+    }
+  ]
+}

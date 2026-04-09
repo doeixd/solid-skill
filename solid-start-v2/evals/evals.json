@@ -1,0 +1,23 @@
+{
+  "skill_name": "solid-start-v2",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a new `/posts` route to this SolidStart app that lists posts from the database, preloads the route data, sets a proper page title and description, and uses the framework's recommended v2 data-loading pattern rather than a hand-rolled fetch in the component.",
+      "expected_output": "A route implementation that uses a keyed query, preload, createAsync, server-only data access, and route metadata for a user-facing page.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Build a protected `/dashboard` page for signed-in users only. Use the app's session/auth helpers, redirect anonymous users to `/login`, make sure the route is safe during SSR, and do not rely on middleware alone for authorization.",
+      "expected_output": "A protected route design that performs auth checks in server-side query or helper code, handles redirect timing correctly, and uses SolidStart-native patterns instead of client-only guards.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create a 'new post' flow in this SolidStart app with a form that submits title and body, validates input on the server, shows pending and validation errors in the UI, and redirects to the created post on success.",
+      "expected_output": "An action-based form flow using native form submission, server-side validation, useSubmission-driven UI state, and redirect-after-write behavior.",
+      "files": []
+    }
+  ]
+}

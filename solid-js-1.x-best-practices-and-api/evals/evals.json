@@ -1,0 +1,23 @@
+{
+  "skill_name": "solid-js-1.x-best-practices-and-api",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this SolidJS 1.x component and refactor it to be more idiomatic without changing behavior. Explain the most important reactivity mistakes you fixed.\n\n```tsx\nfunction UserCard(props: { user: { name: string; age: number } }) {\n  const { user } = props;\n  const [count, setCount] = createSignal(0);\n  const doubled = count() * 2;\n\n  createEffect(() => {\n    console.log(doubled);\n  });\n\n  return <div>{user.name} {doubled}</div>;\n}\n```",
+      "expected_output": "An explanation and minimal refactor that preserves prop reactivity and moves reactive reads into proper scopes.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Why does this Solid component not update when the parent changes the title prop? Show the smallest correct fix and explain it in Solid terms.\n\n```tsx\nfunction Header(props: { title: string }) {\n  const { title } = props;\n  return <h1>{title}</h1>;\n}\n```",
+      "expected_output": "A Solid-specific explanation about reactive props and destructuring, plus corrected code.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I think I am overusing createEffect in my Solid app. Given this snippet, suggest a more idiomatic Solid 1.x approach and explain why.\n\n```tsx\nconst [firstName, setFirstName] = createSignal('Ada');\nconst [lastName, setLastName] = createSignal('Lovelace');\nconst [fullName, setFullName] = createSignal('');\n\ncreateEffect(() => {\n  setFullName(`${firstName()} ${lastName()}`);\n});\n```",
+      "expected_output": "A rewrite using derived state rather than effect-driven synchronization.",
+      "files": []
+    }
+  ]
+}
