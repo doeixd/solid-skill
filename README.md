@@ -40,6 +40,20 @@ Top-level files:
 - `README.md`
   - This file.
 
+## Install
+
+Install all published skills from this repo with `skills.sh`:
+
+```bash
+npx skills add doeixd/solid-skill --all
+```
+
+List the available skills without installing:
+
+```bash
+npx skills add doeixd/solid-skill --list
+```
+
 ## Current status
 
 This repo is in release-hardening mode.
