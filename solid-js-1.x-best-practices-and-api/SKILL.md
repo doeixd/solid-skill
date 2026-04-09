@@ -74,297 +74,106 @@ Use the smallest primitive that matches the job.
 
 ### `createSignal`
 
-What it is:
-
-- the default primitive for local scalar state and simple references
-
-How to use it:
-
-- read with `count()`
-- write with `setCount(next)` or `setCount(prev => next)`
-
-Why to use it:
-
-- explicit, cheap, easy to reason about
-
-Do not use it as the default container for large nested objects if you want fine-grained nested updates.
+- Use it for local scalar state and simple references.
+- Read with `count()` and write with `setCount(next)` or `setCount(prev => next)`.
+- Prefer stores instead when nested object shape and fine-grained branch updates matter.
 
 ### `createMemo`
 
-What it is:
-
-- cached derived state
-
-How to use it:
-
-- derive values from signals, props, or stores
-- read with `memo()`
-
-Why to use it:
-
-- expresses dependency relationships directly
-- avoids recomputing expensive or reused derivations
-
-Do not use it to perform side effects or write state.
+- Use it for cached derived state that is reused or non-trivial.
+- Read with `memo()`.
+- Do not use it for side effects or state writes.
 
 ### `createEffect`
 
-What it is:
-
-- a reactive side-effect boundary
-
-How to use it:
-
-- read reactive values inside it
-- interact with DOM, console, browser APIs, or third-party libraries
-- clean up with `onCleanup`
-
-Why to use it:
-
-- bridges Solid's reactive graph to outside systems
-
-Do not use it as your default way to derive or synchronize state.
-
-If a user reaches for `createEffect` first, check whether they actually need a memo, resource, store helper, or just a JSX expression.
+- Use it as the side-effect boundary for DOM APIs, browser APIs, logging, and third-party libraries.
+- Clean up long-lived work with `onCleanup`.
+- Do not use it as the default way to derive or synchronize state; check whether the real need is a memo, resource, store helper, or plain JSX.
 
 ### `createResource`
 
-What it is:
-
-- Solid 1.x async data primitive for fetch-like workflows
-
-How to use it:
-
-- model request state declaratively
-- pair it with `Suspense` for loading UI
-
-Why to use it:
-
-- handles loading and reactivity better than ad-hoc async effects
-
-Prefer it over `createEffect(async () => ...)` for UI data loading.
+- Use it for fetch-like UI data loading.
+- Pair it with `Suspense` for loading UI.
+- Prefer it over `createEffect(async () => ...)` so loading and reactivity stay aligned with Solid's async model.
 
 ### `batch`
 
-What it is:
-
-- a reactive utility for grouping synchronous updates
-
-How to use it:
-
-- batch multiple setter calls when you need downstream computations to see the combined update
-
-Why to use it:
-
-- reduces unnecessary intermediate work in 1.x synchronous reactivity
-
-Use it intentionally, not as a vague performance ritual.
+- Use it to group synchronous setter calls when downstream computations should observe the combined update.
+- Treat it as a targeted optimization or coordination tool, not a vague performance ritual.
 
 ### `createStore`
 
-What it is:
-
-- fine-grained reactive state for nested objects and arrays
-
-How to use it:
-
-- read properties directly, like `store.user.name`
-- update with targeted setter paths or store updates
-
-Why to use it:
-
-- avoids replacing entire object graphs when only one branch changed
-
-Prefer it when data shape matters more than single-value identity.
-
-If updates are mostly whole-object replacement and nested granularity does not matter, a signal may still be simpler.
+- Use it for nested objects and arrays when property-level reactivity matters.
+- Read properties directly, like `store.user.name`, and prefer targeted updates.
+- If updates are mostly whole-object replacement and nested granularity does not matter, a signal may be simpler.
 
 ### `produce`, `reconcile`, and `unwrap`
 
-What they are:
-
-- common store helpers for nested updates, reconciliation, and conversion to plain values
-
-How to use them:
-
-- `produce` for ergonomic nested mutations
-- `reconcile` when syncing store state to incoming object graphs
-- `unwrap` when a plain non-reactive value is required
-
-Why to use them:
-
-- they solve common store workflows without abandoning fine-grained updates
+- Use `produce` for ergonomic nested mutations.
+- Use `reconcile` when syncing store state to incoming server or external object graphs.
+- Use `unwrap` when a plain non-reactive value is required.
 
 ### `splitProps` and `mergeProps`
 
-What they are:
-
-- prop helpers that preserve reactive access patterns
-
-How to use them:
-
-- `splitProps` when you need local and rest groupings without breaking reactivity
-- `mergeProps` for layered defaults and overrides
-
-Why to use them:
-
-- they are safer than ad-hoc destructuring for reactive props
+- Use `splitProps` when you need local and rest prop groupings without breaking reactivity.
+- Use `mergeProps` for layered defaults and overrides.
+- Prefer both over ad-hoc destructuring when props need to stay reactive.
 
 ### `Show`
 
-What it is:
-
-- conditional rendering primitive
-
-How to use it:
-
-- `when={condition}`
-- optional `fallback={...}`
-
-Why to use it:
-
-- clearer and more Solid-native than scattered `&&` rendering
+- Use it for primary conditional UI branches with `when={condition}` and optional `fallback={...}`.
+- Prefer it over scattered `&&` rendering and large ternaries.
 
 ### `For`
 
-What it is:
-
-- list rendering primitive
-
-How to use it:
-
-- `each={items()}`
-- render each item through the child callback
-
-Why to use it:
-
-- preserves identity and updates lists efficiently
-
-Prefer it over `.map(...)` in dynamic UI code.
+- Use it for referentially keyed list rendering with `each={items()}`.
+- Prefer it over `.map(...)` in dynamic UI code because it preserves identity and updates lists efficiently.
 
 ### `Index`
 
-What it is:
-
-- index-oriented list rendering when item identity is stable by position
-
-How to use it:
-
-- use it when the list shape is stable and per-index access matters more than keyed identity
-
-Why to use it:
-
-- avoids the wrong mental model when `For` is not the best fit
-
-Do not blindly replace every list with `Index`; choose based on update behavior.
+- Use it when the list shape is stable and per-index access matters more than keyed identity.
+- Do not replace every list with `Index`; choose it only when position-based retention is the real goal.
 
 ### `Suspense` and `ErrorBoundary`
 
-What they are:
-
-- async readiness and error boundaries for UI subtrees
-
-How to use them:
-
-- pair `Suspense` with async reads such as `createResource`
-- use `ErrorBoundary` where async or rendering failures should be isolated
-
-Why to use them:
-
-- they provide clearer async and failure handling than custom boolean flags scattered through the tree
-
-Do not invent parallel `loading`, `error`, and `ready` booleans if the framework boundary already models the behavior better.
+- Pair `Suspense` with async reads such as `createResource`.
+- Use `ErrorBoundary` where async or rendering failures should be isolated.
+- Prefer these boundaries over hand-rolled `loading`, `error`, and `ready` booleans scattered through the tree.
 
 ### `lazy`
 
-What it is:
-
-- code-splitting for components
-
-How to use it:
-
-- lazy-load subtree components and usually render them under `Suspense`
-
-Why to use it:
-
-- keeps initial bundles smaller without changing the component model
+- Use it for component-level code splitting.
+- Lazy-load subtree components and usually render them under `Suspense`.
 
 ### `onCleanup`
 
-What it is:
-
-- cleanup registration for reactive scopes
-
-How to use it:
-
-- tear down timers, listeners, subscriptions, and external resources created inside effects or component-owned scopes
-
-Why to use it:
-
-- prevents leaks and stale subscriptions
+- Use it to tear down timers, listeners, subscriptions, and external resources created in effects or component-owned scopes.
+- It prevents leaks and stale subscriptions.
 
 ### `untrack`
 
-What it is:
-
-- escape hatch for intentionally non-reactive reads
-
-How to use it:
-
-- wrap reads that should happen once without subscribing the current scope
-
-Why to use it:
-
-- makes non-tracking intent explicit instead of accidental
-
-Use it narrowly. If a value should stay live, `untrack` is the wrong tool.
+- Use it for intentionally non-reactive reads that should happen once without subscribing the current scope.
+- Use it narrowly. If a value should stay live, `untrack` is the wrong tool.
 
 ### `createContext` and `useContext`
 
-What they are:
-
-- dependency injection for shared subtree state
-
-How to use them:
-
-- provide stable shared values near the tree root that needs them
-- consume with `useContext`
-
-Why to use them:
-
-- avoids prop drilling for shared cross-cutting state
-
-Prefer context for stable shared capabilities, not as a blanket replacement for all local state.
+- Use them for shared subtree state or capabilities that would otherwise require prop drilling.
+- Provide stable shared values near the subtree root and consume them with `useContext`.
+- Prefer context for intentional sharing, not as a blanket replacement for local state.
 
 ### refs
 
-What they are:
-
-- direct access to DOM nodes or child handles
-
-How to use them:
-
-- use `ref={el}` patterns when imperative DOM access is actually needed
-
-Why to use them:
-
-- integrates DOM libraries and focus or measurement workflows
-
-Prefer normal declarative rendering unless imperative DOM work is necessary.
+- Use refs for direct access to DOM nodes or child handles when imperative DOM work is actually needed.
+- They are appropriate for focus, measurement, and DOM-library integration.
+- Prefer normal declarative rendering unless imperative access is necessary.
 
 ## Core best practices
 
-### Pass values to JSX props unless you intentionally want an accessor API
+### Keep props and reads reactive
 
-Default to calling signals when passing them as props:
-
-```tsx
-<User id={id()} name="Brenley" />
-```
-
-Prefer this over passing `id` directly, because most components should not need to care whether a prop originated from a signal. If a component intentionally accepts an accessor, say so explicitly and keep that choice narrow.
-
-The main idea is that JSX is where Solid expects dependency tracking to happen. If the parent reads `id()` in JSX, Solid tracks that read naturally and the child can accept a normal value-shaped prop.
+- Pass values to JSX props unless the child intentionally accepts an accessor API.
+- Do not destructure reactive props by default; access them as `props.name` or preserve them with `splitProps`.
+- Keep reactive reads inside JSX, memos, or other reactive scopes. The component body is setup code, not a tracked render loop.
 
 Prefer:
 
@@ -379,110 +188,11 @@ function User(props: { id: number; name: string }) {
 }
 ```
 
-Avoid making ordinary component props accessor-shaped without a reason.
-
-### Do not destructure reactive props by default
-
-This often breaks reactivity:
-
-```tsx
-function User(props: { name: string }) {
-  const { name } = props;
-  return <h1>{name}</h1>;
-}
-```
-
-Prefer direct property access:
-
-```tsx
-function User(props: { name: string }) {
-  return <h1>{props.name}</h1>;
-}
-```
-
-If destructuring is truly needed, prefer helpers that preserve reactivity such as `splitProps`.
-
-The underlying reason is that Solid props are getter-based. Direct property access preserves the getter. Plain destructuring usually extracts the current value and loses the reactive connection.
-
-### Keep reactive reads inside reactive scopes
-
-If a value should update over time, do not compute it once in component setup and expect it to stay current.
-
-Prefer:
-
-```tsx
-const doubled = createMemo(() => count() * 2);
-```
-
-or:
-
-```tsx
-const doubled = () => count() * 2;
-```
-
-Then read it inside JSX or another reactive scope.
-
-Remember that the component body is setup code, not a tracked render loop.
-
-If the user wants a reactive value, two things need to be true:
-
-1. delay the read with a function or memo
-2. execute that read inside JSX or another reactive scope
-
-### Preserve prop reactivity when reshaping props
-
-If you need to separate props into local and remaining groups, prefer `splitProps` over object destructuring. If you need defaults, prefer `mergeProps` over eager destructuring plus fallback values.
-
-### Prefer `createMemo` for reusable derived values
-
-Use plain wrappers like `() => count() * 2` for trivial one-off derivations. Use `createMemo` when:
-
-- the computation is reused
-- the computation is non-trivial
-- stable caching improves clarity or performance
-
-Do not introduce `createMemo` for every tiny expression without a reason.
-
-Good rule of thumb:
-
-- wrapper function for cheap one-off derivation
-- `createMemo` when the value is reused or meaningfully benefits from caching
-
 ### Prefer derivation over synchronization
 
-If one value can be computed from another, derive it.
-
-Prefer:
-
-```tsx
-const fullName = () => `${firstName()} ${lastName()}`;
-```
-
-or:
-
-```tsx
-const fullName = createMemo(() => `${firstName()} ${lastName()}`);
-```
-
-Avoid creating a second writable signal only to mirror the first.
-
-### Use `createEffect` sparingly
-
-`createEffect` is mainly for synchronizing with the outside world, such as:
-
-- DOM APIs
-- browser APIs
-- logging
-- third-party libraries
-
-Avoid effects for:
-
-- data fetching that should use `createResource`
-- syncing one piece of state into another when a memo or derived function would do
-
-When you see an effect that just copies state, try to replace it with derived state.
-
-In practice, many Solid bugs come from treating `createEffect` like a default orchestration primitive instead of a bridge to non-Solid systems.
+- If one value can be computed from another, derive it with a wrapper function or `createMemo`.
+- Use `createMemo` when the computation is reused, non-trivial, or clearly benefits from caching.
+- Do not mirror state through `createEffect` unless the job is actually synchronizing with the outside world.
 
 Common anti-pattern:
 
@@ -502,53 +212,22 @@ Prefer:
 const fullName = createMemo(() => `${firstName()} ${lastName()}`);
 ```
 
-For async reads, prefer `createResource` over `createEffect(async () => ...)` so loading, errors, and cancellation behavior stay aligned with Solid's async model.
+For async reads, prefer `createResource` over `createEffect(async () => ...)`.
 
-### Prefer Solid control-flow components
+### Use the framework primitives that match the job
 
-Default to Solid's control-flow primitives instead of ad-hoc `&&`, ternaries, and `.map(...)` inside JSX.
+- Prefer `Show`, `For`, `Index`, `Switch`, and `Match` over ad-hoc `&&`, ternaries, and `.map(...)` in JSX.
+- Prefer `createStore` when nested object shape and property-level updates matter.
+- Prefer `splitProps` and `mergeProps` when reshaping props.
+- Prefer context for intentional subtree sharing, not as a blanket replacement for local state.
 
-Use the control-flow rule pack below for the detailed bias:
+### Keep imperative work explicit
 
-- `Show` for primary conditional branches
-- `For` for referentially keyed lists
-- `Index` when position matters more than identity
-- `Switch` and `Match` for multi-branch UI
+- Use `createEffect` for DOM APIs, browser APIs, logging, subscriptions, and third-party integrations.
+- Use refs only when direct DOM or child-handle access is genuinely needed.
+- Pair long-lived imperative work with `onCleanup`.
 
-Prefer:
-
-```tsx
-<Show when={open()} fallback={<EmptyState />}>
-  <SidebarMenu />
-</Show>
-```
-
-and:
-
-```tsx
-<For each={items()}>{item => <Item item={item} />}</For>
-```
-
-These primitives communicate intent directly and let Solid optimize the structure it controls.
-
-### Use stores for complex nested state
-
-For primitives and simple references, signals are often enough. For nested objects or arrays with fine-grained updates, prefer `createStore`.
-
-Use the state-management rule pack below for the operational guidance:
-
-- path syntax for targeted updates
-- `produce` for complex mutable-style changes
-- `reconcile` for incoming server or external data
-- context when state is genuinely shared across a subtree
-
-### Keep context values stable and intentional
-
-If you provide context, prefer a stable object of capabilities or state rather than recreating provider values ad hoc. Context should clarify sharing boundaries, not replace ordinary local state.
-
-### Use refs and effects only for real imperative work
-
-If the job is focus management, measurement, browser APIs, or third-party integration, refs plus effects are appropriate. If the job is ordinary rendering, keep it declarative and use the refs-and-DOM rule pack below for specifics.
+If the job is ordinary rendering, keep it declarative. Use the rule packs below for testing, accessibility, web-component, and performance-specific guidance.
 
 ## Debugging checklist
 
