@@ -27,6 +27,15 @@ When reviewing or editing code, prefer minimal changes that preserve behavior.
 
 Default to explaining the smallest Solid-specific reason a pattern is wrong. Avoid turning a local fix into a large rewrite unless the user asked for that.
 
+## How to use this skill
+
+Read this skill in passes instead of treating every section as equally important.
+
+1. Start with `Core mental model` and `Primitive selection guide`.
+2. Use `Core best practices` when writing or refactoring ordinary component code.
+3. Use `Specialized rule packs` and `Task-focused rule selection` when the task is about testing, accessibility, web components, or performance work.
+4. Use `Common mistakes to catch` and `Debugging checklist` for code review or bug triage.
+
 ## Core mental model
 
 - Components run once for setup.
@@ -36,7 +45,30 @@ Default to explaining the smallest Solid-specific reason a pattern is wrong. Avo
 
 Use that model to explain bugs and justify fixes.
 
-## API surface map
+## Primitive selection guide
+
+Choose primitives with this bias:
+
+1. `createSignal` for local scalar state
+2. derived function or `createMemo` for computed values
+3. `createStore` for nested structured state
+4. `createResource` plus `Suspense` for async data loading
+5. `createEffect` only when touching the outside world
+6. `Show`, `For`, and `Index` for UI control flow
+7. `splitProps` and `mergeProps` when reshaping props
+8. context only for genuinely shared subtree concerns
+
+## Core heuristics
+
+Keep these ideas in the foreground:
+
+1. Keep getters intact.
+2. Derive instead of synchronizing.
+3. Let JSX and reactive scopes own dependency tracking.
+4. Use effects for the outside world, not for routine data flow.
+5. Use stores when the shape of nested data matters.
+
+## Core primitives
 
 Use the smallest primitive that matches the job.
 
@@ -320,7 +352,7 @@ Why to use them:
 
 Prefer normal declarative rendering unless imperative DOM work is necessary.
 
-## Best practices
+## Core best practices
 
 ### Pass values to JSX props unless you intentionally want an accessor API
 
@@ -518,29 +550,6 @@ If you provide context, prefer a stable object of capabilities or state rather t
 
 If the job is focus management, measurement, browser APIs, or third-party integration, refs plus effects are appropriate. If the job is ordinary rendering, keep it declarative and use the refs-and-DOM rule pack below for specifics.
 
-## Primitive selection guide
-
-Choose primitives with this bias:
-
-1. `createSignal` for local scalar state
-2. derived function or `createMemo` for computed values
-3. `createStore` for nested structured state
-4. `createResource` plus `Suspense` for async data loading
-5. `createEffect` only when touching the outside world
-6. `Show`, `For`, and `Index` for UI control flow
-7. `splitProps` and `mergeProps` when reshaping props
-8. context only for genuinely shared subtree concerns
-
-## Core heuristics
-
-Keep these ideas in the foreground:
-
-1. Keep getters intact.
-2. Derive instead of synchronizing.
-3. Let JSX and reactive scopes own dependency tracking.
-4. Use effects for the outside world, not for routine data flow.
-5. Use stores when the shape of nested data matters.
-
 ## Debugging checklist
 
 When a Solid 1.x component is not updating correctly, check these first:
@@ -553,7 +562,7 @@ When a Solid 1.x component is not updating correctly, check these first:
 6. Would `createStore` better fit the shape of the state?
 7. Was `untrack` or `batch` used intentionally, or is it masking the real problem?
 
-## Additional rule sets
+## Specialized rule packs
 
 Use these rule packs when the task is more specialized than the general reactivity guidance above.
 
