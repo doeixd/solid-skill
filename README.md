@@ -13,6 +13,20 @@ This repo contains a small set of agent skills for SolidJS and SolidStart work, 
 - `solid-start-v2`
   - SolidStart v2 architecture, route data, actions, auth, middleware, API routes, metadata, and runtime guidance.
 
+## Install
+
+Install all published skills from this repo with `skills.sh`:
+
+```bash
+npx skills add doeixd/solid-skill --all
+```
+
+List the available skills without installing:
+
+```bash
+npx skills add doeixd/solid-skill --list
+```
+
 ## Source material
 
 - `solid.md`
@@ -39,20 +53,6 @@ Top-level files:
   - Current release-readiness audit and recommended execution order.
 - `README.md`
   - This file.
-
-## Install
-
-Install all published skills from this repo with `skills.sh`:
-
-```bash
-npx skills add doeixd/solid-skill --all
-```
-
-List the available skills without installing:
-
-```bash
-npx skills add doeixd/solid-skill --list
-```
 
 ## Current status
 
