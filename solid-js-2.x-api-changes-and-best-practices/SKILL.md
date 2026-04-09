@@ -24,6 +24,15 @@ Determine whether the user wants:
 
 If the user is actually upgrading old code, prefer the dedicated migration skill unless they only want a narrow API explanation.
 
+## How to use this skill
+
+Read this skill in passes instead of treating every section as equally important.
+
+1. Start with `Important framing`, `Primitive selection guide`, and `Core behavior changes to internalize`.
+2. Use `Core API guide` for fresh code, reviews, and narrow API questions.
+3. Use `Reference guide` when the task is concentrated in one area such as async data, ownership, stores, or DOM behavior.
+4. Use `Task-focused loading` and `Common mistakes to catch` for code review, warning triage, and implementation guidance.
+
 ## Important framing
 
 - Target is Solid 2.x beta or `next`.
@@ -47,52 +56,42 @@ Keep the main body of this skill as the working guide. Read the deeper reference
 - for `createStore`, `createProjection`, `storePath`, `snapshot`, `merge`, or `omit`: read `references/stores-and-helpers.md`
 - for `For`, `Repeat`, function-child accessors, DOM attributes, `ref` directive factories, or context providers: read `references/control-flow-dom-and-context.md`
 
-## API surface map
+## Primitive selection guide
 
-Keep this dense and practical. Explain each primitive in terms of what it is, how it behaves in 2.x, and why it exists.
+Choose primitives with this bias:
+
+1. `createSignal` for local scalar state
+2. `createMemo` for derivation, including async derivation when it matches the problem
+3. `createStore` for nested state
+4. `Loading` and `Errored` for async and error boundaries
+5. `isPending`, `latest`, and `refresh` for async coordination
+6. `action` plus optimistic helpers for mutations
+7. `createProjection` or function-form `createStore` for projection-oriented derived collections and keyed reconciliation
+8. `createEffect` only for bridging to the outside world
+9. `For`, `Show`, `Switch`, `Match`, and `Repeat` for control flow
+10. `ref` factories for imperative DOM hooks
+
+## Core API guide
+
+Keep this dense and practical. Bias toward `use it for`, `watch out for`, and the most important 2.x-specific behavior.
 
 ### `createSignal`
 
-What it is:
-
-- the core local state primitive
-
-How it behaves in 2.x:
-
-- writes are batched until flush
-- function-form signals can represent derived writable shapes in some cases
-
-Why it matters:
-
-- many migration misunderstandings start with assuming reads update immediately after writes
-
-Function form can express derived-but-writable state:
+- Use it for core local state.
+- In 2.x, writes are batched until flush, so immediate reads do not observe the new value.
+- Function form can express derived-but-writable state when that shape is truly intended:
 
 ```ts
 const [value, setValue] = createSignal(() => props.something);
 ```
 
-Use that for writable derived state. For readonly derivation, prefer `createMemo`.
+For readonly derivation, prefer `createMemo`.
 
 ### `createMemo`
 
-What it is:
-
-- derived computation, including async computation patterns in 2.x
-
-How it behaves in 2.x:
-
-- central to deriving values without write-back effects
-- tracked reads must happen before `await`
-- can represent async derivations that would previously have pushed people toward `createResource` or framework helpers like `createAsync`
-- consumers still read the accessor normally; unresolved async values suspend through the graph until a `Loading` boundary handles them
-
-Why it matters:
-
-- it is part of the 2.x async story and worth recognizing when reading or writing new code
-- it removes the need for a separate resource-shaped read primitive in many cases
-
-For new Solid core examples, prefer an explicitly async computation shape:
+- Use it for derivation, including many async derivations in 2.x.
+- Tracked reads must happen before `await`.
+- For Solid core 2.x examples, prefer an explicitly async computation shape instead of drifting into neighboring helpers like `createAsync`.
 
 ```ts
 const profile = createMemo(async () => {
@@ -101,7 +100,7 @@ const profile = createMemo(async () => {
 });
 ```
 
-Do not quietly swap in `createAsync` from framework-specific docs or older examples when the task is about Solid core 2.x.
+- Consumers still read the accessor normally; unresolved async values suspend through the graph until a `Loading` boundary handles them.
 
 Track before `await`:
 
@@ -117,20 +116,9 @@ Do not read `query()` for the first time after an `await`.
 
 ### `createEffect`
 
-What it is:
-
-- a split-phase effect: compute first, apply second
-
-How it behaves in 2.x:
-
-- compute tracks dependencies
-- apply runs side effects and can return cleanup
-
-Why it matters:
-
-- old 1.x single-callback intuition often produces the wrong shape or warning-prone code
-
-Drive this distinction hard:
+- Use it as a split-phase effect: compute first, apply second.
+- Old 1.x single-callback intuition often produces the wrong shape or warning-prone code.
+- Drive this distinction hard:
 
 - compute is for reading reactive inputs and deciding what changed
 - apply is for mutating the outside world
@@ -152,67 +140,28 @@ createEffect(
 
 ### `onSettled`
 
-What it is:
-
-- the lifecycle primitive replacing `onMount`
-
-How it behaves in 2.x:
-
-- runs once current activity settles
-- can return cleanup
-
-Why it matters:
-
-- mount timing and cleanup habits changed, and many examples need a semantic rewrite rather than a rename
+- Use it instead of `onMount`.
+- It runs once current activity settles and can return cleanup.
+- Treat `onMount` migration as a semantic review, not a blind rename.
 
 ### `Loading`
 
-What it is:
-
-- the async readiness boundary
-
-How it behaves in 2.x:
-
-- shows fallback while required async values are not ready
-- is primarily for initial readiness, not for every later refresh
-
-Why it matters:
-
-- it replaces `Suspense` in the new async model
-- it keeps loading state in UI structure instead of leaking `T | undefined` holes through code
-
-For new 2.x examples, pair `Loading` with an async computation from `createMemo(async () => ...)` or another clearly derived 2.x primitive. Do not answer with old `Suspense` code unless the user asked for comparison or migration context.
+- Use it as the async readiness boundary.
+- It is primarily for initial readiness, not every later refresh.
+- Pair it with an async computation from `createMemo(async () => ...)` or another clearly derived 2.x primitive. Do not answer with old `Suspense` code unless the user asked for comparison or migration context.
 
 ### `Errored`
 
-What it is:
-
-- the error boundary primitive
-
-How it behaves in 2.x:
-
-- can render a fallback callback with the error and reset function
-
-Why it matters:
-
-- pairs with the 2.x async and effect model more directly than old boundary assumptions
+- Use it as the 2.x error boundary primitive.
+- It can render a fallback callback with the error and reset function.
+- Pair it with the 2.x async and effect model instead of carrying forward old boundary assumptions.
 
 ### `isPending`, `latest`, and `refresh`
 
-What they are:
-
-- async coordination helpers
-
-How they behave in 2.x:
-
-- `isPending(() => expr)` signals refresh or stale-while-revalidate states
-- `latest(fn)` lets you inspect the most recent in-flight value
-- `refresh(...)` recomputes derived reads after writes
-
-Why they matter:
-
-- they replace a lot of custom "loading flag plus refetch" code
-- they separate initial loading from later revalidation and mutation follow-up
+- Use them as async coordination helpers.
+- `isPending(() => expr)` is for refresh or stale-while-revalidate states, not first load.
+- `latest(fn)` lets you inspect the most recent in-flight value.
+- `refresh(...)` recomputes derived reads after writes.
 
 Example:
 
@@ -224,20 +173,10 @@ const latestUsers = () => latest(users);
 
 ### `action`, `createOptimistic`, `createOptimisticStore`
 
-What they are:
-
-- mutation and optimistic UI primitives
-
-How they behave in 2.x:
-
-- `action(...)` expresses a mutation flow
-- optimistic primitives layer temporary UI state over source-of-truth data
-- actions run inside the transition model and are the intended place to sequence optimistic writes, async work, and refreshes
-
-Why they matter:
-
-- 2.x encourages first-class mutation flows instead of ad-hoc mutation helpers
-- in many app-level flows, optimistic primitives are a better fit than inventing extra pending or mirror state by hand
+- Use `action(...)` for mutation flows.
+- Actions run inside the transition model and are the intended place to sequence optimistic writes, async work, and refreshes.
+- Use optimistic primitives when immediate UI feedback matters and the real source of truth still needs refresh afterward.
+- Prefer this over inventing extra pending or mirror state by hand.
 
 Example:
 
@@ -254,44 +193,21 @@ const addTodo = action(function* (text: string) {
 });
 ```
 
-Use optimistic primitives when the user experience benefits from showing the expected result immediately, but keep the real source of truth explicit and refresh it after the mutation settles.
+Keep the real source of truth explicit and refresh it after the mutation settles.
 
 ### `createProjection`
 
-What it is:
-
-- a mutable derived store for projection, keyed reconciliation, and selection-like patterns
-
-How it behaves in 2.x:
-
-- derives a store shape from reactive inputs
-- can mutate a draft or return reconciled list data
-- pairs well with refreshable derived data and keyed collections
-- if it returns list or map data, unchanged keyed entries can keep identity via reconciliation
-
-Why it matters:
-
-- it is the more explicit projection primitive behind several derived-store patterns that 1.x users may have modeled with selectors or ad-hoc effects
-
-Use it when the derived result is better modeled as a store-shaped projection than a plain accessor.
+- Use it when the derived result is better modeled as a store-shaped projection than a plain accessor.
+- It fits projection, keyed reconciliation, and selection-like patterns that 1.x users may have modeled with selectors or ad-hoc effects.
+- If it returns list or map data, unchanged keyed entries can keep identity via reconciliation.
 
 ### `createStore`
 
-What it is:
-
-- the store primitive, now exposed from `solid-js`
-
-How it behaves in 2.x:
-
-- draft-first setters are the preferred style
-- derived-store forms exist via `createStore(fn, initial)`
-- `snapshot` replaces `unwrap`
-- returning a value from a setter performs a shallow replacement or diff for the top-level object or array
-
-Why it matters:
-
-- old path-style habits still exist, but they are no longer the center of the API
-- some projection-like work can be expressed either with `createProjection` or function-form `createStore`
+- Use it for nested state, now from `solid-js`.
+- Prefer draft-first setters in fresh 2.x code.
+- Function-form `createStore(fn, initial)` still exists for derived-store patterns when that shape is the right fit.
+- `snapshot` replaces `unwrap`, and returning a value from a setter performs a top-level shallow replacement or diff.
+- Old path-style habits still exist, but they are no longer the center of the API.
 
 Preferred update shape:
 
@@ -323,7 +239,7 @@ const merged = merge({ a: 1, b: 2 }, { b: undefined });
 
 ### `snapshot` and `deep`
 
-Helpers for plain-value extraction and deep observation. Use `snapshot(store)` for serialization or interop. Use `deep(store)` only when deep observation is truly intended.
+Use `snapshot(store)` for serialization or interop. Use `deep(store)` only when deep observation is truly intended.
 
 Example:
 
@@ -333,23 +249,14 @@ const plain = snapshot(store);
 
 ### `For`, `Show`, `Switch`, `Match`, `Repeat`
 
-What they are:
-
-- control-flow primitives with more explicit accessor semantics
-
-How they behave in 2.x:
-
-- function children often receive accessors
-- `For` replaces `Index` via `keyed={false}`
-- `Repeat` handles count or range rendering without list diffing
-
-Why they matter:
-
-- function child semantics are a common place where 1.x instincts create stale reads or wrong assumptions
+- Use them as control-flow primitives with more explicit accessor semantics.
+- Function children often receive accessors.
+- `For` replaces `Index` via `keyed={false}`.
+- `Repeat` handles count or range rendering without list diffing.
 
 ### `createContext`
 
-Context primitive with simplified provider ergonomics. The context object itself is the provider component.
+Use the context object itself as the provider component.
 
 Example:
 
@@ -361,22 +268,13 @@ const ThemeContext = createContext("light");
 </ThemeContext>
 ```
 
-Prefer this over reaching for `Context.Provider`.
+Prefer this over carrying forward `Context.Provider`.
 
 ### Ownership and `createRoot`
 
-What they are:
-
-- runtime lifetime rules for reactive graphs
-
-How they behave in 2.x:
-
-- a `createRoot(...)` created inside an owned scope is owned by its parent by default
-- disposal therefore follows the parent unless you detach explicitly
-
-Why they matter:
-
-- fewer accidental unowned graphs and fewer cleanup surprises
+- A `createRoot(...)` created inside an owned scope is owned by its parent by default.
+- Disposal follows the parent unless you detach explicitly.
+- This reduces accidental unowned graphs and cleanup surprises.
 
 If the user genuinely needs detached lifetime, make that explicit:
 
@@ -389,23 +287,13 @@ const singleton = runWithOwner(null, () => {
 
 ### `createComputed` removal
 
-What changed:
-
-- `createComputed` is removed
-
-How to replace it:
-
-- use split `createEffect` when the job is side effects
-- use function-form `createSignal` or `createStore` when the job is derived state with a setter
-- use `createMemo` when the job is readonly derivation
-
-Why it matters:
-
-- 2.x wants derived state, effects, and ownership to be more explicit and easier to reason about
+- `createComputed` is removed.
+- Replace it with split `createEffect` for side effects, function-form `createSignal` or `createStore` for derived state with a setter, or `createMemo` for readonly derivation.
+- 2.x wants derived state, effects, and ownership to be more explicit and easier to reason about.
 
 ### refs and directive factories
 
-Imperative DOM hooks and the replacement for `use:` directives. Express directive-like behavior through `ref` factories instead of translating `use:` literally.
+Use `ref` factories for imperative DOM hooks and directive-like behavior. Do not translate `use:` literally.
 
 ## Core behavior changes to internalize
 
@@ -630,20 +518,101 @@ When writing or reviewing 2.x code:
 - if an exact beta import or export is uncertain, say so explicitly instead of inventing a helper
 - do not replace `render` with unrelated mount APIs unless the local repo or installed exports show that is the right move
 
-## Primitive selection guide
+## Task-focused loading
 
-Choose primitives with this bias:
+### Writing fresh 2.x code
 
-1. `createSignal` for local scalar state
-2. `createMemo` for derivation, including async derivation when it matches the problem
-3. `createStore` for nested state
-4. `Loading` and `Errored` for async and error boundaries
-5. `isPending`, `latest`, and `refresh` for async coordination
-6. `action` plus optimistic helpers for mutations
-7. `createProjection` or function-form `createStore` for projection-oriented derived collections and keyed reconciliation
-8. `createEffect` only for bridging to the outside world
-9. `For`, `Show`, `Switch`, `Match`, and `Repeat` for control flow
-10. `ref` factories for imperative DOM hooks
+Load these ideas first:
+
+- pick primitives from the `Primitive selection guide`
+- keep derivation in `createMemo`
+- use `Loading` and `Errored` for boundaries
+- use `action` plus optimistic helpers for mutations
+- stay on the Solid core boundary unless the task explicitly moves into Start or router APIs
+
+### Explaining warnings or behavior changes
+
+Load these ideas first:
+
+- microtask batching and `flush()`
+- split `createEffect`
+- top-level reactive read warnings
+- writes inside owned reactive scope warnings
+- ownership and `createRoot`
+
+Common warning-to-cause mapping:
+
+- stale immediate reads after setters usually mean the user is still assuming 1.x-style synchronous visibility
+- top-level read warnings usually mean props or signals were read in setup instead of JSX or another tracked scope
+- owned-scope write warnings usually mean derivation was modeled as write-back synchronization instead of derived state or an action
+
+### Reviewing existing 2.x code
+
+Look for these first:
+
+- derivation done through effects instead of `createMemo`
+- top-level reactive reads or destructured reactive props
+- writes to signals or stores from owned tracked scopes
+- fresh-code examples using migration-only or compatibility helpers by default
+- drift into Start or router helpers when the task is supposed to stay on Solid core
+- nested `createRoot(...)` calls that assume detached lifetime without making that explicit
+- control-flow callbacks that forget accessor semantics such as `item()` or `i()`
+
+### Async data and mutation design
+
+Load these ideas first:
+
+- `createMemo(async () => ...)` for reads
+- `Loading` for first readiness
+- `isPending` for revalidation state
+- `latest` when inspecting current in-flight value matters
+- `action` and optimistic primitives for writes
+- `refresh(...)` after mutations
+
+Keep the job split explicit:
+
+- computations handle async reads
+- actions handle writes and mutation sequencing
+- `refresh(...)` recomputes reads after writes; it is not just a renamed `refetch` habit
+
+### Store and projection work
+
+Load these ideas first:
+
+- draft-first `createStore` setters
+- `createProjection` for store-shaped derived results
+- function-form `createStore` when derived store state fits better there
+- `storePath` only as a compatibility helper, not the fresh-code default
+- `snapshot`, `merge`, and `omit` instead of old 1.x helpers
+
+### DOM and directive work
+
+Load these ideas first:
+
+- `ref` directive factories instead of `use:`
+- standard HTML-like attribute behavior
+- `class` object or array forms instead of `classList`
+- accessor-aware control-flow callbacks
+
+## Common mistakes to catch
+
+| Mistake | Better direction |
+| --- | --- |
+| Assuming a setter read updates immediately | Explain microtask batching and use `flush()` only when a settled point is truly needed. |
+| Using `createEffect` for derivation | Move derivation to `createMemo` or another derived form. |
+| Reading reactive props at the top level of a component | Read them inside JSX, memos, or effect compute functions. |
+| Writing app state from memos or tracked scopes | Move writes to actions, event handlers, or explicit writable derived-state patterns. |
+| Using `pureWrite: true` as a generic warning silencer | Reserve it for narrow internal cases such as refs or internal bookkeeping; fix the state flow instead. |
+| Using `Suspense` in fresh 2.x core examples | Use `Loading` unless the user asked for migration comparison. |
+| Treating async reads and async mutations as the same kind of problem | Use computations for reads and `action(...)` for writes. |
+| Reaching for `createAsync`, router helpers, or Start helpers in core Solid prompts | Stay on Solid core primitives unless the task explicitly moves into that ecosystem. |
+| Treating `storePath` as the fresh-code default | Prefer draft-first store setters in new 2.x code. |
+| Forgetting accessor semantics in control-flow callbacks | In `For keyed={false}` and similar callback sites, read values with `item()` and `i()` when accessors are provided. |
+| Translating `use:` directives literally | Use `ref` directive factories. |
+| Treating `isPending` like first-load state | Use `Loading` for first readiness and `isPending` for refresh or stale-while-revalidate state. |
+| Using `Context.Provider` out of habit | Use the context object directly as the provider component. |
+| Assuming nested `createRoot(...)` is detached by default | Explain that nested roots are owned by the parent unless detached explicitly with `runWithOwner(null, ...)`. |
+| Replacing `render` with a plausible-sounding mount helper | Only move imports or APIs when the local repo or official 2.x docs confirm it. |
 
 ## Output expectations
 
