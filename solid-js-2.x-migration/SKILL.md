@@ -36,6 +36,15 @@ Do not present everything as equally safe. Call out where a rewrite is mechanica
 
 Do not invent replacement APIs that are not part of the Solid 2 migration guidance in this skill. If a candidate rewrite depends on neighboring framework helpers or uncertain beta exports, say that explicitly and keep the migration on the highest-confidence Solid core path.
 
+## How to use this skill
+
+Read this skill in passes instead of treating every section as equally important.
+
+1. Start with `Migration mindset`, `Recommended migration workflow`, and `High-confidence mechanical migrations`.
+2. Use `Canonical before and after rewrites` for the first implementation pass.
+3. Use `Semantics that need careful migration` when behavior, warnings, tests, or lifetime issues are involved.
+4. Use `Task-focused migration guidance` and `Common migration mistakes to catch` for review, triage, and planning.
+
 ## Recommended migration workflow
 
 1. Inspect package versions, imports, and the current usage of 1.x APIs.
@@ -442,6 +451,72 @@ Useful migration-era insights from real projects:
 - loading and mutation state are less primitive-specific now, so many old `.loading` and transition-wrapper patterns should collapse into `Loading`, `isPending`, actions, and optimistic primitives
 - old code that accidentally relied on unowned lifetime may start behaving more sanely in 2.x, but singleton-style integrations should now detach explicitly with `runWithOwner(null, ...)`
 - writes-under-scope and strict-read warnings are usually design feedback, not noise to suppress
+
+## Task-focused migration guidance
+
+### Planning a staged migration
+
+Load these ideas first:
+
+- separate mechanical changes from semantic rewrites
+- change imports and package boundaries early
+- use compatibility bridges such as `storePath(...)` only when they reduce migration risk
+- leave time for warning cleanup and test fixes, not just code rewrites
+
+### Migrating component code
+
+Look for these first:
+
+- `Index` to `For keyed={false}` with accessor-aware callbacks
+- top-level prop reads and destructuring that now warn
+- `onMount` assumptions that need `onSettled`
+- `Context.Provider` habits
+- `use:` directives that need `ref` factories
+
+### Migrating reactivity patterns
+
+Look for these first:
+
+- state derivation done through effects instead of `createMemo`
+- writes to signals or stores from memos or other tracked scopes
+- code that assumes post-setter reads are immediately updated
+- nested `createRoot(...)` calls that assumed detached lifetime
+
+### Migrating async data and mutations
+
+Load these ideas first:
+
+- do not stop at `Suspense` -> `Loading`
+- move async reads toward computations plus `Loading`
+- treat `Loading` and `isPending` as different jobs
+- move old transition-style mutation UX toward `action(...)`, optimistic primitives, and `refresh(...)`
+- keep async reads and async writes as separate migration concerns
+
+### Debugging test and tooling breakage
+
+Look for these first:
+
+- stale immediate reads after setters in tests
+- aliasing or package-boundary mismatches
+- duplicate Solid versions in linked packages or monorepos
+- ecosystem lag in test libraries or SSR tooling
+- warnings that reveal semantic migration errors rather than bad syntax
+
+## Common migration mistakes to catch
+
+| Mistake | Better direction |
+| --- | --- |
+| Treating every migration as a rename pass | Separate mechanical changes from semantic rewrites and say which is which. |
+| Renaming `Suspense` to `Loading` but leaving the old async model intact | Migrate the read model too, not just the boundary component. |
+| Treating `createResource` like it has a one-word replacement | Move toward async computations plus `Loading`, `isPending`, and `refresh(...)` where appropriate. |
+| Preserving write-back effects just because they existed in 1.x | Replace derivation with `createMemo` or another derived form when that was the real intent. |
+| Scattering `flush()` everywhere after test failures | Use it narrowly where a settled point is genuinely needed. |
+| Treating `storePath(...)` as the final 2.x style | Use it as a bridge, then prefer draft-first setters in migrated code. |
+| Using `pureWrite: true` to suppress owned-scope warnings in app code | Redesign the state flow instead; reserve `pureWrite: true` for narrow internal cases. |
+| Forgetting accessor semantics when replacing `Index` | In `For keyed={false}` callbacks, read `item()` and `i()` when accessors are provided. |
+| Assuming nested `createRoot(...)` stayed detached like before | Make detached lifetime explicit with `runWithOwner(null, ...)` when it is truly required. |
+| Reaching for `createAsync`, router helpers, or Start helpers during core migration | Stay on the highest-confidence Solid core migration path unless the repo proves a framework-specific target. |
+| Treating warnings as noise to suppress | Use them as migration feedback about state flow, read placement, and ownership. |
 
 ## When to pause and ask the user
 
