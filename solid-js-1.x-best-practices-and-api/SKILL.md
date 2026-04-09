@@ -738,7 +738,9 @@ Load these rules when the user is using Shoelace, FAST, Lion, Material Web Compo
 | `::part()` rules inside CSS modules not applying | 6-6 | Move them to a global stylesheet. |
 | Barrel imports for whole web component libraries | 6-6 | Import only the components you use. |
 | `value={signal()}` on a custom element not syncing state | 5-7 | Listen for events and push values imperatively through the element ref. |
+| `<div popover>` or `<button popoverTarget="x">` TypeScript error | 2-10 | Augment the relevant HTMLElement types in a `.d.ts` file for newer HTML attributes. |
 | Object props on custom elements becoming `"[object Object]"` | 5-7 | Use `prop:myProp={value}` when the library expects a JS property. |
+| Experimental CSS properties such as `anchor-name` causing a TypeScript error | 2-8 | Cast through `unknown` to `JSX.CSSProperties` instead of forcing `never`. |
 
 ## React comparison
 
