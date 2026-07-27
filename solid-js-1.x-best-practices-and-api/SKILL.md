@@ -1,5 +1,5 @@
 ---
-name: solid-js-1.x-best-practices-and-api
+name: solid-js-1x-best-practices-and-api
 description: Guidance for writing, reviewing, and refactoring SolidJS 1.x code using idiomatic APIs and reactivity patterns. Use this whenever the user is working in SolidJS 1.x and asks for help with components, signals, props, memos, effects, stores, control flow, or why a Solid component is not updating correctly. Also use it for code reviews or refactors of Solid 1.x code, especially when React habits may be causing non-idiomatic Solid patterns.
 ---
 

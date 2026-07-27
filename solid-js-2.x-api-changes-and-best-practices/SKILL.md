@@ -1,5 +1,5 @@
 ---
-name: solid-js-2.x-api-changes-and-best-practices
+name: solid-js-2x-api-changes-and-best-practices
 description: Guidance for writing, reviewing, and explaining SolidJS 2.x beta or next-era code, including new APIs, changed semantics, and idiomatic patterns. Use this whenever the user is targeting Solid 2.x beta or next, asks how a 2.x API works, wants new code written in the 2.x style, or needs help understanding warnings about top-level reactive reads, writes in owned scope, batching, Loading, Errored, new store APIs, or changed DOM and control-flow behavior. Use this even if the user does not explicitly say beta or next when the code clearly targets Solid 2.x APIs.
 ---
 

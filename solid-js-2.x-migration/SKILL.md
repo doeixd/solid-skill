@@ -1,5 +1,5 @@
 ---
-name: solid-js-2.x-migration
+name: solid-js-2x-migration
 description: Guidance for migrating an existing SolidJS 1.x codebase to SolidJS 2.x beta or next, including identifying old APIs, rewriting code to the new semantics, sequencing changes safely, and validating the migration with warnings and tests. Use this whenever the user asks to upgrade, port, convert, or migrate SolidJS code from 1.x to 2.x, especially when they mention renamed imports, removed APIs like Index or createResource, new effect behavior, Loading or Errored, store API changes, failing tests after upgrade, or ecosystem breakage during the move to Solid 2.x beta or next.
 ---
 
