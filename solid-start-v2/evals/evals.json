@@ -29,6 +29,18 @@
         "Uses formAction (not the deprecated router action) for the form.",
         "Uses useSubmissions rather than useSubmission for pending UI."
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "On @solidjs/router 2.0.0-next with solid-js 2, build a nav with Home, Users, and a user's Settings page link, highlight the current section, and preload a link's data when the user hovers it.",
+      "expected_output": "Plain anchors built from typed paths, CSS on data-active/aria-current, and intentPreload configured on createRouter.",
+      "files": [],
+      "assertions": [
+        "Uses plain <a> elements, not an A component or activeClass.",
+        "Builds hrefs from the router's typed paths (for example paths.users(id).settings) or plain strings.",
+        "Styles active state with [data-active] or [aria-current=\"page\"] selectors.",
+        "Configures preloadLinks: intentPreload() on createRouter instead of assuming hover preloading is on by default."
+      ]
     }
   ]
 }

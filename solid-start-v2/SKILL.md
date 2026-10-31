@@ -1,6 +1,6 @@
 ---
 name: solid-start-v2
-description: Guidance for building, reviewing, and refactoring high-quality SolidStart v2 applications using idiomatic route, data, mutation, server, and deployment patterns. Use this whenever the user is working in a SolidStart app or mentions `@solidjs/start`, `@solidjs/router`, route `preload`, `query`, `action`, `createAsync`, forms, sessions, middleware, API routes, metadata, or app setup in Start v2. Use it even when the user does not explicitly say "SolidStart" if they are clearly building a Solid full-stack app with route-based server data and mutations.
+description: Guidance for building, reviewing, and refactoring high-quality SolidStart v2 applications using idiomatic route, data, mutation, server, and deployment patterns. Use this whenever the user is working in a SolidStart app or mentions `@solidjs/start`, `@solidjs/router`, route `preload`, `query`, `action`, `formAction`, `createAsync`, `createRouter`, typed `paths`, link preloading, forms, sessions, middleware, API routes, metadata, or app setup in Start v2. Use it even when the user does not explicitly say "SolidStart" if they are clearly building a Solid full-stack app with route-based server data and mutations.
 ---
 
 # SolidStart v2
@@ -55,6 +55,10 @@ If the user needs route data:
 
 - read `references/data-and-mutations.md`
 - on `@solidjs/router` 2.x with Solid 2, also read `references/router-2-on-solid-2.md`, which replaces its `createAsync` and `useSubmission` guidance
+
+If the app is on `@solidjs/router` 2.x and the task touches routes, links, typed paths, preloading, search params, navigation hooks, `query`, `liveQuery`, or `formAction`:
+
+- read `references/router-2-on-solid-2.md`
 
 If the user needs auth, sessions, or protected pages:
 
@@ -131,6 +135,7 @@ If you see these patterns, correct them unless the repo has a strong reason not 
 - server helpers importing secrets from code that is also used by the client
 - older Vinxi- or Nitro-2-specific examples copied into a v2 app without checking local packages
 - `createAsync`, `useSubmission`, or router `action` written for an app on router 2 and Solid 2 (use a core `createMemo`, `useSubmissions`, and `formAction`)
+- `<A>`, `activeClass`, JSX `<Route>` trees, or `<Navigate>` on router 2 (plain `<a>` with `[data-active]` / `[aria-current]`, `createRouter({ routes })`, and `useNavigate()` during setup)
 - a POST server function that changes no query but returns a plain value, which on router 2 revalidates every query on screen (return `respond(value, { revalidate: "" })`)
 
 ## When the local repo disagrees

@@ -24,7 +24,7 @@ Use this reference when you want a final pass on implementation quality before c
 ## UX
 
 - forms use actions unless the interaction is genuinely non-form-driven
-- pending and validation states are exposed through `useSubmission` when appropriate
+- pending and validation states are exposed through `useSubmission` (router 1), or through `aria-busy`, `.onSubmit` optimistic state, and `useSubmissions` (router 2), when appropriate
 - user-facing pages have sensible title and metadata
 
 ## Runtime and portability
