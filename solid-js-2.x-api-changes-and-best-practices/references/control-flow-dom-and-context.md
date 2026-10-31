@@ -10,13 +10,21 @@ The source of truth for this file is the migration guide plus the control-flow a
 
 `Index` is gone. The replacement is `For` with `keyed={false}`.
 
-Important behavior change: `For` children receive accessors for both item and index.
+Important behavior change: the callback shape follows keying.
 
 ```tsx
+// Default (keyed by identity): raw item, index accessor
+<For each={items()}>
+  {(item, i) => <Row item={item} index={i()} />}
+</For>
+
+// Non-keyed (replaces Index): item accessor, plain-number index
 <For each={items()} keyed={false}>
-  {(item, i) => <Row item={item()} index={i()} />}
+  {(item, i) => <Row item={item()} index={i} />}
 </For>
 ```
+
+`<Repeat>` passes a plain-number index.
 
 ### Function children often receive accessors
 

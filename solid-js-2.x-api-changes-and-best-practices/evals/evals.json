@@ -37,12 +37,12 @@
     {
       "id": 4,
       "prompt": "I am writing a new Solid 2.x beta table component and I used Index because I wanted non-keyed behavior. Show the correct 2.x rewrite and explain any callback-signature differences.\n\n```tsx\n<Index each={rows()}>{(row, i) => <Row row={row().name} index={i} />}</Index>\n```",
-      "expected_output": "A rewrite using For keyed={false} with the correct accessor-based callback shape and a brief explanation of the child callback differences.",
+      "expected_output": "A rewrite using For keyed={false} with the correct callback shape (item accessor, plain-number index) and a brief note on how default keyed For differs.",
       "files": [],
       "assertions": [
         "Replaces Index with For keyed={false}.",
-        "Uses accessor reads correctly for both item and index where appropriate.",
-        "Explains that the migration is not just a rename."
+        "Reads item as an accessor (item()) and uses i as a plain number, not i().",
+        "Notes that default keyed For passes a raw item and an index accessor instead."
       ]
     },
     {
@@ -65,6 +65,28 @@
         "Uses action for the mutation flow.",
         "Uses createOptimistic or createOptimisticStore for optimistic UI.",
         "Uses refresh and avoids SolidStart-specific route or form APIs."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "My Solid 2 SSR page renders correctly but nothing is interactive after hydration, and dev mode logs hydration key misses. I recently added this inside a provider:\n\n```ts\nif (!isServer) {\n  createEffect(preload, data => seedCache(data));\n}\n```\n\nWhat is wrong?",
+      "expected_output": "An explanation that client-only owners shift hydration ids, with the effect created on both sides.",
+      "files": [],
+      "assertions": [
+        "Explains that owners must be created in the same order on server and client because hydration ids are assigned by creation order.",
+        "Removes the isServer guard around createEffect, noting effects do not apply on the server.",
+        "Does not suggest disabling hydration or switching to render() as the fix."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "In Solid 2, a failed price row has a \"Try again\" button that calls refresh(price). The retry works, but isPending(() => price()) never turns true, so I cannot show \"Retrying…\". Why, and how do I fix it?",
+      "expected_output": "An explanation that a bare refresh is quiet, with affects(price) before refresh(price).",
+      "files": [],
+      "assertions": [
+        "Explains that a bare refresh() re-asks the same question and does not read as pending.",
+        "Uses affects(price) followed by refresh(price).",
+        "Does not invent a manual loading signal as the primary fix."
       ]
     }
   ]

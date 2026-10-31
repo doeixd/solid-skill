@@ -107,10 +107,10 @@ import { createStore } from "solid-js";
 <Index each={items()}>{(item, i) => <Row item={item()} index={i} />}</Index>
 
 // 2.x beta
-<For each={items()} keyed={false}>{(item, i) => <Row item={item()} index={i()} />}</For>
+<For each={items()} keyed={false}>{(item, i) => <Row item={item()} index={i} />}</For>
 ```
 
-The migration is not just renaming the component. The index is now also an accessor.
+For `keyed={false}` the callback shape matches 1.x `Index`: `item` is an accessor and `i` is a plain number. The shape that changed is default (keyed) `For`, which now passes a raw `item` and an index accessor `i()`.
 
 ### `Suspense` to `Loading`
 
@@ -363,7 +363,7 @@ This also applies to control-flow callback bodies. If old code read reactive val
 
 Old patterns that wrote state from memos or tracked scopes should usually be redesigned rather than patched. Prefer derived state or event-driven writes.
 
-`pureWrite: true` is for narrow internal cases, not for silencing application-state warnings during migration.
+`ownedWrite: true` (called `pureWrite` in older betas) is for narrow internal cases, not for silencing application-state errors during migration. In current releases a write inside an owned scope throws in dev, and wrapping it in `untrack` does not help.
 
 ### Async data
 
@@ -512,8 +512,9 @@ Look for these first:
 | Preserving write-back effects just because they existed in 1.x | Replace derivation with `createMemo` or another derived form when that was the real intent. |
 | Scattering `flush()` everywhere after test failures | Use it narrowly where a settled point is genuinely needed. |
 | Treating `storePath(...)` as the final 2.x style | Use it as a bridge, then prefer draft-first setters in migrated code. |
-| Using `pureWrite: true` to suppress owned-scope warnings in app code | Redesign the state flow instead; reserve `pureWrite: true` for narrow internal cases. |
-| Forgetting accessor semantics when replacing `Index` | In `For keyed={false}` callbacks, read `item()` and `i()` when accessors are provided. |
+| Using `ownedWrite: true` (formerly `pureWrite`) to suppress owned-scope errors in app code | Redesign the state flow instead; reserve it for narrow internal cases. |
+| Getting callback shapes wrong when replacing `Index` | In `For keyed={false}` callbacks, `item` is an accessor (`item()`) and `i` is a plain number. Default keyed `For` is the reverse: raw `item`, accessor `i()`. |
+| Wrapping an effect in `if (!isServer)` while migrating `onMount` code | Create the same owners on server and client and branch inside the apply function; a client-only owner shifts hydration ids and the SSR page never becomes interactive. |
 | Assuming nested `createRoot(...)` stayed detached like before | Make detached lifetime explicit with `runWithOwner(null, ...)` when it is truly required. |
 | Reaching for `createAsync`, router helpers, or Start helpers during core migration | Stay on the highest-confidence Solid core migration path unless the repo proves a framework-specific target. |
 | Treating warnings as noise to suppress | Use them as migration feedback about state flow, read placement, and ownership. |

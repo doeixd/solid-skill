@@ -14,6 +14,7 @@ If the task is mainly about Solid core reactivity, component semantics, or Solid
 - SolidStart v2 architecture guidance does not imply that the app is already using Solid 2.x core semantics.
 - Start v2 and Solid 2 are not the same migration step. Check the installed Solid packages before applying 2.x-only core advice like `Loading`, `Errored`, split `createEffect`, or top-level reactive read warnings.
 - Use this skill for Start route, server, auth, middleware, metadata, and runtime patterns. Pull in a Solid core skill only for component-level or reactivity-level questions.
+- Check the installed `@solidjs/router` major version. The `createAsync`, router `action`, `useSubmission`, and `useAction` defaults below are router 1. On router 2 (`next`) with Solid 2, `createAsync` does not exist, the router's `action` is a deprecated alias of `formAction`, and `useAction` is deprecated: read `references/router-2-on-solid-2.md` first.
 
 ## Goals
 
@@ -53,6 +54,7 @@ Then choose the smallest SolidStart-native pattern that fits.
 If the user needs route data:
 
 - read `references/data-and-mutations.md`
+- on `@solidjs/router` 2.x with Solid 2, also read `references/router-2-on-solid-2.md`, which replaces its `createAsync` and `useSubmission` guidance
 
 If the user needs auth, sessions, or protected pages:
 
@@ -128,6 +130,8 @@ If you see these patterns, correct them unless the repo has a strong reason not 
 - auth checks done only in middleware
 - server helpers importing secrets from code that is also used by the client
 - older Vinxi- or Nitro-2-specific examples copied into a v2 app without checking local packages
+- `createAsync`, `useSubmission`, or router `action` written for an app on router 2 and Solid 2 (use a core `createMemo`, `useSubmissions`, and `formAction`)
+- a POST server function that changes no query but returns a plain value, which on router 2 revalidates every query on screen (return `respond(value, { revalidate: "" })`)
 
 ## When the local repo disagrees
 

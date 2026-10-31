@@ -18,6 +18,17 @@
       "prompt": "Create a 'new post' flow in this SolidStart app with a form that submits title and body, validates input on the server, shows pending and validation errors in the UI, and redirects to the created post on success.",
       "expected_output": "An action-based form flow using native form submission, server-side validation, useSubmission-driven UI state, and redirect-after-write behavior.",
       "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "This app uses @solidjs/router 2.0.0-next with solid-js 2.0. Write a route that reads a post with query() and a form that saves an edit, showing pending state while it submits.",
+      "expected_output": "Router 2 code: a query read through a core createMemo under Loading, a formAction for the form, and useSubmissions for pending state.",
+      "files": [],
+      "assertions": [
+        "Does not use createAsync; reads the query with createMemo under a Loading boundary.",
+        "Uses formAction (not the deprecated router action) for the form.",
+        "Uses useSubmissions rather than useSubmission for pending UI."
+      ]
     }
   ]
 }

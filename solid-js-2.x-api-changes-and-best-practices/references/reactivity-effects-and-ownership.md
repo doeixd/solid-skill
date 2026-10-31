@@ -10,7 +10,7 @@ The source of truth for this file is the Solid 2.0 migration guide plus the Reac
 - `flush()` is the synchronous escape hatch when code truly needs a settled point now
 - `createEffect` is split into a compute phase and an apply phase
 - top-level reactive reads in component bodies warn in dev unless wrapped intentionally
-- writes inside owned reactive scope warn in dev unless the signal is a narrow internal `pureWrite` case
+- writes inside owned reactive scope throw in dev unless the signal opts in with `{ ownedWrite: true }` (formerly `pureWrite`)
 - `onMount` is replaced by `onSettled`
 - nested `createRoot(...)` calls are owned by the parent by default
 
@@ -68,15 +68,37 @@ If non-tracking behavior is truly intended, make it explicit with `untrack`.
 
 ## Writes inside owned scope
 
-Writing app state from memos, effects, or other owned reactive scopes is now a warning-shaped smell.
+Writing app state from memos, effect computes, or component bodies throws in dev (`REACTIVE_WRITE_IN_OWNED_SCOPE`). The guard checks the ambient owner, so wrapping the write in `untrack` does not help.
 
 Prefer:
 
 - deriving with `createMemo`
-- writing in event handlers or actions
-- using `pureWrite: true` only for narrow internal cases such as refs or internal bookkeeping
+- writing in event handlers, `onSettled`, effect apply functions, or actions
+- using `{ ownedWrite: true }` only for narrow internal cases such as refs or internal bookkeeping
 
-Do not treat `pureWrite: true` as a general warning silencer.
+Do not treat `ownedWrite: true` as a general silencer.
+
+## Writes in one frame land together
+
+Writes made in the same synchronous frame commit together. If one of them starts async work (a navigation, a refetch, a pending memo), the others are held with it. To land one write on its own, such as closing a menu before calling `props.onSelect`, wrap it in `onFlush(() => setOpen(false))`. Do not reach for `queueMicrotask` or `setTimeout`.
+
+Because reads lag writes until the flush, two rapid events can each read the state from before the other. When a handler must build on its own previous write (two quick "add to cart" clicks), keep the intended value in a plain variable updated synchronously, and derive the request from that, not from a signal read.
+
+## Seeding signals from reactive values
+
+A signal's initial value from another accessor is a top-level read. Make it explicit:
+
+```ts
+const [debounced, setDebounced] = createSignal(untrack(label));
+```
+
+A writable derived signal receives its previous value, which suits state that follows an input but can also be set by hand:
+
+```ts
+const [layout, setLayout] = createSignal<"Landing" | "Search">(prev =>
+  query() !== "" ? "Search" : (prev ?? "Landing"),
+);
+```
 
 ## `onSettled`
 

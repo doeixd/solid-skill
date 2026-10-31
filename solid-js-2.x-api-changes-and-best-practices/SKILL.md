@@ -37,6 +37,7 @@ Read this skill in passes instead of treating every section as equally important
 
 - Target is Solid 2.x beta or `next`.
 - If the local project dependencies disagree with the skill's guidance, trust the installed versions and package exports in the repo.
+- Recent `solid-js` releases ship their own agent docs: `node_modules/solid-js/CHEATSHEET.md`, `node_modules/solid-js/skills/` (a primer, the cheatsheet, and `reactivity-diagnostics` with one section per dev warning code), and `node_modules/@solidjs/web/skills/` (server components). When they exist, check unfamiliar names and warning codes there first; they track the installed version, this skill does not.
 - Prefer explaining the new mental model, because many 2.x mistakes come from carrying over 1.x habits.
 - For code generation, prefer the exact primitives and package boundaries described in this skill and the official Solid 2.0 docs. Do not substitute neighboring framework helpers or unofficial aliases just because they sound plausible.
 - In particular, do not introduce `createAsync`, `mount`, router helpers, or Start-specific patterns unless the user is explicitly in that ecosystem and the local repo confirms those exports.
@@ -55,6 +56,7 @@ Keep the main body of this skill as the working guide. Read the deeper reference
 - for `Loading`, `isPending`, `latest`, `refresh`, `action`, or optimistic UI: read `references/async-data-and-mutations.md`
 - for `createStore`, `createProjection`, `storePath`, `snapshot`, `merge`, or `omit`: read `references/stores-and-helpers.md`
 - for `For`, `Repeat`, function-child accessors, DOM attributes, `ref` directive factories, or context providers: read `references/control-flow-dom-and-context.md`
+- for SSR, streaming, hydration mismatches, server functions, `GET()`, `respond`, or server components: read `references/ssr-hydration-and-server-functions.md`
 
 ## Primitive selection guide
 
@@ -159,9 +161,9 @@ createEffect(
 ### `isPending`, `latest`, and `refresh`
 
 - Use them as async coordination helpers.
-- `isPending(() => expr)` is for refresh or stale-while-revalidate states, not first load.
-- `latest(fn)` lets you inspect the most recent in-flight value.
-- `refresh(...)` recomputes derived reads after writes.
+- `isPending(() => expr)` is true while a value *change* is in flight (an input changed, or `affects()` declared one). It is not first-load state and not 1.x `.loading`.
+- `latest(fn)` lets you inspect the most recent in-flight value. Use it for controls that should show the user's new choice while the transition holds the committed one.
+- `refresh(...)` re-asks the source after writes. A bare `refresh(x)` is quiet: `isPending` stays false and the fresh value appears silently. For a retry or reload that should read as pending, declare it with `affects(x); refresh(x)`.
 
 Example:
 
@@ -250,8 +252,11 @@ const plain = snapshot(store);
 ### `For`, `Show`, `Switch`, `Match`, `Repeat`
 
 - Use them as control-flow primitives with more explicit accessor semantics.
-- Function children often receive accessors.
+- `<For>` callback shape follows keying: the default (keyed by identity) gives a raw `item` and an index accessor `i()`; `keyed={false}` gives an item accessor `item()` and a plain-number `i`.
+- Non-keyed `<Show>` and `<Match>` function children receive a narrowed accessor; call it.
+- Callback bodies are owners, not tracking scopes: read accessor arguments in JSX or a memo, not at the top of the callback.
 - `For` replaces `Index` via `keyed={false}`.
+- `<Loading on={dep()}>` re-arms a boundary: a change to what `on` reads shows the fallback again if something under it is pending (for example, a new search but not a re-sort).
 - `Repeat` handles count or range rendering without list diffing.
 
 ### `createContext`
@@ -337,14 +342,14 @@ Prefer reading inside JSX expressions, memos, or effect compute functions.
 
 ### Writes inside owned reactive scope warn
 
-Do not use memos or tracked scopes to write application state back into signals or stores. Prefer:
+Writing a signal or store from a memo, an effect's compute, or a component body throws in dev (`REACTIVE_WRITE_IN_OWNED_SCOPE`). The guard is owner-based, so `untrack` does not exempt a write. Prefer:
 
 - derived state with `createMemo`
-- event handlers
+- event handlers, `onSettled`, or effect apply functions
 - actions
-- narrow `pureWrite: true` only for valid internal cases
+- `{ ownedWrite: true }` on a signal only for narrow internal cases
 
-Do not recommend `pureWrite: true` as a generic warning silencer.
+Do not recommend `ownedWrite: true` as a generic silencer. (Older betas called this option `pureWrite`.)
 
 ## Async derivation patterns
 
@@ -469,8 +474,8 @@ The rename and removal map above covers the high-level swaps. This section is ab
 ### Control flow
 
 - `Index` is removed; use `<For keyed={false}>`
-- `For` child functions receive accessors, so call `item()` and `i()`
-- function children in `Show` and related APIs may also receive accessors
+- default `For` children get a raw item and an index accessor; `keyed={false}` children get an item accessor and a plain-number index
+- non-keyed function children in `Show` and `Match` receive accessors
 - `Repeat` exists for count or range-based rendering
 
 ### Stores and helpers
@@ -602,12 +607,15 @@ Load these ideas first:
 | Using `createEffect` for derivation | Move derivation to `createMemo` or another derived form. |
 | Reading reactive props at the top level of a component | Read them inside JSX, memos, or effect compute functions. |
 | Writing app state from memos or tracked scopes | Move writes to actions, event handlers, or explicit writable derived-state patterns. |
-| Using `pureWrite: true` as a generic warning silencer | Reserve it for narrow internal cases such as refs or internal bookkeeping; fix the state flow instead. |
+| Using `ownedWrite: true` (formerly `pureWrite`) as a generic silencer | Reserve it for narrow internal cases such as refs or internal bookkeeping; fix the state flow instead. |
 | Using `Suspense` in fresh 2.x core examples | Use `Loading` unless the user asked for migration comparison. |
 | Treating async reads and async mutations as the same kind of problem | Use computations for reads and `action(...)` for writes. |
 | Reaching for `createAsync`, router helpers, or Start helpers in core Solid prompts | Stay on Solid core primitives unless the task explicitly moves into that ecosystem. |
 | Treating `storePath` as the fresh-code default | Prefer draft-first store setters in new 2.x code. |
-| Forgetting accessor semantics in control-flow callbacks | In `For keyed={false}` and similar callback sites, read values with `item()` and `i()` when accessors are provided. |
+| Getting `<For>` callback shapes backwards | Default `For`: raw `item`, index accessor `i()`. `keyed={false}`: accessor `item()`, plain-number `i`. |
+| Creating an effect or memo only on the client (`if (!isServer) createEffect(...)`) | Create the same owners on both sides and branch inside the apply function; otherwise every hydration id after it shifts and the page never becomes interactive. |
+| Using a bare `refresh(x)` for a visible retry | Use `affects(x); refresh(x)` so `isPending` reports the retry. |
+| Writing a second update in the same handler and expecting it to land before a navigation or refetch | Writes in one synchronous frame land together; wrap the one that must land now in `onFlush(...)`, not `queueMicrotask` or `setTimeout`. |
 | Translating `use:` directives literally | Use `ref` directive factories. |
 | Treating `isPending` like first-load state | Use `Loading` for first readiness and `isPending` for refresh or stale-while-revalidate state. |
 | Using `Context.Provider` out of habit | Use the context object directly as the provider component. |
@@ -638,5 +646,6 @@ When answering, prefer this structure:
 - Control flow RFC: https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/03-control-flow.md
 - Stores RFC: https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/04-stores.md
 - Async data RFC: https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/05-async-data.md
+- Solid 2.0 docs for agents: https://v2.solidjs.com (`/llms.txt`, `/llms-full.txt`)
 - Actions and optimistic RFC: https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/06-actions-optimistic.md
 - DOM RFC: https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/07-dom.md

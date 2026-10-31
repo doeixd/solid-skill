@@ -2,6 +2,8 @@
 
 Use this reference for route data, forms, revalidation, and write flows.
 
+The examples here are router 1 (`createAsync`, router `action`, `useSubmission`). On `@solidjs/router` 2.x with Solid 2, read `router-2-on-solid-2.md`: queries are read with a core `createMemo`, and the form layer is `formAction` with `useSubmissions`.
+
 ## Reads: prefer `query`
 
 Use `query(async (...args) => { ... }, key)` for server-backed reads.
