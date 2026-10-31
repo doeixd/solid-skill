@@ -128,7 +128,7 @@ export async function saveCart(names: string[]) {
 
 ### Unit tests
 
-Modules that use `"use server"` or `GET()` need the Solid compiler, so plain Vitest without the Solid plugin fails to load them. Keep pure logic (validation, search, pricing) in modules with no server-function wrappers, test those directly, and import them from the server-function module. When a test run reports its totals, check the "Test Files" line too: a file that fails to load does not show up in the passed-test count.
+Modules that use `"use server"` or `GET()` need the Solid compiler, so a Vitest config without the Solid plugin fails to load them. Either keep pure logic (validation, search, pricing) in modules with no server-function wrappers and test those directly, or run tests with the plugin and give server tests a Vitest project with `environment: "node"` (see the `solid-2-full-stack` skill). When a test run reports its totals, check the "Test Files" line too: a file that fails to load does not show up in the passed-test count.
 
 ## Server components
 
@@ -136,16 +136,6 @@ Modules that use `"use server"` or `GET()` need the Solid compiler, so plain Vit
 
 Enabling them (`serverFunctions: { components: true }` in `@solidjs/vite-plugin`) switches every server-function call to a frames-capable transport. In one app that added about 14 KB gzip to a page that used no server components, more than the 5 KB code-split page it was meant to save. Measure the whole app's bundle before keeping them.
 
-## `@solidjs/vite-plugin` start mode
+## App setup
 
-Without `@solidjs/start`, the Vite plugin can own the entries, dev server, SSR, and server functions:
-
-```ts
-solid({
-  start: { middleware: "./src/server/middleware.ts" }, // fronts every request
-  ssr: true,
-  serverFunctions: true,
-});
-```
-
-The server entry renders with `renderToStream(() => <Document><App /></Document>, { manifest })`, importing `manifest` from `virtual:solid-manifest`. The client entry calls `hydrate(..., document)`. The dev toolbar (`@solidjs/start-devtools`) is development-only and is not in production builds.
+Configuring `@solidjs/vite-plugin` start mode (entries, middleware, env, the server-function endpoint, hosts, and tests) and `@solidjs/router` 2 is covered by the `solid-2-full-stack` skill. The dev toolbar (`@solidjs/start-devtools`) is development-only and is not in production builds.

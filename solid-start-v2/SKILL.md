@@ -1,11 +1,13 @@
 ---
 name: solid-start-v2
-description: Guidance for building, reviewing, and refactoring high-quality SolidStart v2 applications using idiomatic route, data, mutation, server, and deployment patterns. Use this whenever the user is working in a SolidStart app or mentions `@solidjs/start`, `@solidjs/router`, route `preload`, `query`, `action`, `formAction`, `createAsync`, `createRouter`, typed `paths`, link preloading, forms, sessions, middleware, API routes, metadata, or app setup in Start v2. Use it even when the user does not explicitly say "SolidStart" if they are clearly building a Solid full-stack app with route-based server data and mutations.
+description: Guidance for existing SolidStart v2 applications that depend on `@solidjs/start`: route, data, mutation, server, auth, middleware, metadata, and deployment patterns. Use this when the project has `@solidjs/start` in its dependencies or the user is maintaining or migrating a SolidStart app (`app.config.ts`, `@solidjs/start/http`, Vinxi or Nitro setups). For new Solid 2 full-stack apps, `@solidjs/vite-plugin` start mode, or `@solidjs/router` 2.x, use the `solid-2-full-stack` skill instead.
 ---
 
 # SolidStart v2
 
-Use this skill for SolidStart v2 app work. Keep it focused on Start-specific architecture and server boundaries.
+Use this skill for apps that depend on `@solidjs/start`. Keep it focused on Start-specific architecture and server boundaries.
+
+SolidStart has effectively been replaced by `@solidjs/vite-plugin` start mode, which owns entries, dev serving, SSR, middleware, server functions, and env without a framework package. For a new Solid 2 app, or a project already on start mode or `@solidjs/router` 2.x, use the `solid-2-full-stack` skill. Suggest moving an existing Start app to start mode only when the user asks about it.
 
 If the task is mainly about Solid core reactivity, component semantics, or Solid 2.x API behavior, use the matching Solid skill alongside this one.
 
@@ -14,7 +16,7 @@ If the task is mainly about Solid core reactivity, component semantics, or Solid
 - SolidStart v2 architecture guidance does not imply that the app is already using Solid 2.x core semantics.
 - Start v2 and Solid 2 are not the same migration step. Check the installed Solid packages before applying 2.x-only core advice like `Loading`, `Errored`, split `createEffect`, or top-level reactive read warnings.
 - Use this skill for Start route, server, auth, middleware, metadata, and runtime patterns. Pull in a Solid core skill only for component-level or reactivity-level questions.
-- Check the installed `@solidjs/router` major version. The `createAsync`, router `action`, `useSubmission`, and `useAction` defaults below are router 1. On router 2 (`next`) with Solid 2, `createAsync` does not exist, the router's `action` is a deprecated alias of `formAction`, and `useAction` is deprecated: read `references/router-2-on-solid-2.md` first.
+- Check the installed `@solidjs/router` major version. The `createAsync`, router `action`, `useSubmission`, and `useAction` defaults below are router 1. On router 2 (`next`) with Solid 2, `createAsync` does not exist, the router's `action` is a deprecated alias of `formAction`, and `useAction` is deprecated: follow the router reference in the `solid-2-full-stack` skill.
 
 ## Goals
 
@@ -54,11 +56,7 @@ Then choose the smallest SolidStart-native pattern that fits.
 If the user needs route data:
 
 - read `references/data-and-mutations.md`
-- on `@solidjs/router` 2.x with Solid 2, also read `references/router-2-on-solid-2.md`, which replaces its `createAsync` and `useSubmission` guidance
-
-If the app is on `@solidjs/router` 2.x and the task touches routes, links, typed paths, preloading, search params, navigation hooks, `query`, `liveQuery`, or `formAction`:
-
-- read `references/router-2-on-solid-2.md`
+- on `@solidjs/router` 2.x with Solid 2, use the `solid-2-full-stack` skill's `references/router-2.md`, which replaces its `createAsync` and `useSubmission` guidance
 
 If the user needs auth, sessions, or protected pages:
 

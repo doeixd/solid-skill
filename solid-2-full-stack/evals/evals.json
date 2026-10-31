@@ -1,0 +1,51 @@
+{
+  "skill_name": "solid-2-full-stack",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "This app uses @solidjs/router 2.0.0-next with solid-js 2.0. Write a route that reads a post with query() and a form that saves an edit, showing pending state while it submits.",
+      "expected_output": "Router 2 code: a query read through a core createMemo under Loading, a formAction for the form, and useSubmissions for pending state.",
+      "files": [],
+      "assertions": [
+        "Does not use createAsync; reads the query with createMemo under a Loading boundary.",
+        "Uses formAction (not the deprecated router action) for the form.",
+        "Uses useSubmissions rather than useSubmission for pending UI."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "On @solidjs/router 2.0.0-next with solid-js 2, build a nav with Home, Users, and a user's Settings page link, highlight the current section, and preload a link's data when the user hovers it.",
+      "expected_output": "Plain anchors built from typed paths, CSS on data-active/aria-current, and intentPreload configured on createRouter.",
+      "files": [],
+      "assertions": [
+        "Uses plain <a> elements, not an A component or activeClass.",
+        "Builds hrefs from the router's typed paths (for example paths.users(id).settings) or plain strings.",
+        "Styles active state with [data-active] or [aria-current=\"page\"] selectors.",
+        "Configures preloadLinks: intentPreload() on createRouter instead of assuming hover preloading is on by default."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Set up a new Solid 2 app with server-side rendering, a /api/health endpoint, server functions, and a typed DATABASE_URL secret. I was going to use SolidStart.",
+      "expected_output": "A start-mode setup: @solidjs/vite-plugin with start and ssr true and serverFunctions, a middleware module for the endpoint, and env.ts with a server schema read through virtual:env/server.",
+      "files": [],
+      "assertions": [
+        "Uses @solidjs/vite-plugin start mode (start plus ssr: true) instead of adding @solidjs/start.",
+        "Implements /api/health in a start.middleware module that calls next() for other requests.",
+        "Declares DATABASE_URL in env.ts under server and reads it only from server-only code via virtual:env/server.",
+        "Does not hand-write index.html or a dev server script."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "In my Solid 2 start-mode app, clicking \"add to cart\" calls a saveCart server function, and every price on the page refetches each time. Why?",
+      "expected_output": "An explanation of the POST-as-mutation rule with respond(value, { revalidate: \"\" }) as the fix.",
+      "files": [],
+      "assertions": [
+        "Explains that under @solidjs/router a POST server function with no revalidate keys revalidates every query on screen.",
+        "Returns respond(items, { revalidate: \"\" }) (or names the affected keys) from saveCart.",
+        "Does not suggest removing query() or disabling caching as the fix."
+      ]
+    }
+  ]
+}

@@ -46,7 +46,7 @@ Read this skill in passes instead of treating every section as equally important
 
 - Use this skill for fresh 2.x code, narrow 2.x API explanations, 2.x warning triage, and review of code that already targets the new semantics.
 - If the user is upgrading an existing 1.x app or library, prefer the dedicated migration skill unless they only need a narrow explanation of one changed API.
-- Do not answer Start-specific route, query, action, middleware, or deployment questions from generic Solid assumptions. Use the SolidStart skill alongside this one when the app is a Start app.
+- Do not answer route, query, action, middleware, or deployment questions from generic Solid assumptions. For `@solidjs/vite-plugin` start mode and `@solidjs/router` 2.x apps, use the `solid-2-full-stack` skill alongside this one; for apps that depend on `@solidjs/start`, use `solid-start-v2`.
 
 ## Reference guide
 

@@ -1,6 +1,6 @@
 # App Architecture
 
-The flows below use router 1 APIs (`createAsync`). On `@solidjs/router` 2.x with Solid 2, keep the same structure but read queries with `createMemo` and use `formAction`; see `router-2-on-solid-2.md`.
+The flows below use router 1 APIs (`createAsync`). On `@solidjs/router` 2.x with Solid 2, keep the same structure but read queries with `createMemo` and use `formAction`; see the `solid-2-full-stack` skill's `references/router-2.md`.
 
 Use this reference when the task is about structuring a feature or whole app.
 

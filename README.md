@@ -10,8 +10,10 @@ This repo contains a small set of agent skills for SolidJS and SolidStart work, 
   - Solid 2.x beta or `next` APIs, changed semantics, warnings, stores, async patterns, DOM behavior, and best practices.
 - `solid-js-2.x-migration`
   - Migration guidance for upgrading existing Solid 1.x codebases to Solid 2.x beta or `next`.
+- `solid-2-full-stack`
+  - Full-stack Solid 2 apps on `@solidjs/vite-plugin` start mode (the SolidStart replacement) with `@solidjs/router` 2.x and server functions: config, entries, middleware, env, routing, links, data, mutations, testing, and deployment.
 - `solid-start-v2`
-  - SolidStart v2 architecture, route data, actions, auth, middleware, API routes, metadata, and runtime guidance.
+  - Legacy guidance for existing apps that depend on `@solidjs/start`. New Solid 2 apps should use `solid-2-full-stack`.
 
 ## Install
 

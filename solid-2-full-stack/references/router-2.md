@@ -1,6 +1,6 @@
-# Router 2 On Solid 2
+# Router 2
 
-Use this reference when the app runs `@solidjs/router` 2.x (`next`) on `solid-js` 2.x, with or without `@solidjs/start`. Most router 1 patterns elsewhere in this skill do not exist there.
+Use this reference when the app runs `@solidjs/router` 2.x (`next`) on `solid-js` 2.x. Router 1 patterns from older Solid and SolidStart material (`createAsync`, `<A>`, JSX `<Route>`, `useSubmission`) do not exist here.
 
 Sources: the `@solidjs/router@2.0.0-next.43` README and type declarations, plus field notes from a production SSR app on `solid-js@2.0.0-rc.20` (marked **In practice**). The router's own README calls this line "1.0" and the Solid 1 line "0.x", even though npm publishes it as `2.0.0-next`. Before relying on a name below, check `node_modules/@solidjs/router/README.md` and `dist/index.d.ts` for the installed version.
 
@@ -349,7 +349,7 @@ const target = () => (isPending(() => location.pathname) ? latest(() => location
 - `Router.match("/users/2/settings?tab=x")` matches any URL with no rendering, for middleware, sitemaps, and tests.
 - Other config: `base`, `actionBase` (default `/_server`), `explicitLinks`, `transformUrl`.
 - File routes: `fileRoutes(pageRoutes)` from `@solidjs/router/fs` maps a `virtual:file-routes` manifest; route files export the component as `default` and config as `route = defineFileRoute("/blog/:id", { ... })`.
-- Server component routes (experimental): `serverRouteComponent(query(fn, key))` uses a `"use server"` function that returns a component as a route's `component`. It is called with `{ params, search }` derived from the route. `Router.keysFor(url)` returns the query keys of the server routes a URL shows, for naming what a mutation changed. Requires `serverFunctions: { components: true }` in `@solidjs/vite-plugin`; see the Solid 2 skill's SSR reference for its bundle cost.
+- Server component routes (experimental): `serverRouteComponent(query(fn, key))` uses a `"use server"` function that returns a component as a route's `component`. It is called with `{ params, search }` derived from the route. `Router.keysFor(url)` returns the query keys of the server routes a URL shows, for naming what a mutation changed. Requires `serverFunctions: { components: true }` in `@solidjs/vite-plugin`; see `ssr-hydration-and-server-functions.md` in the Solid 2 API skill for its bundle cost. Register `createFlightDataCollector(Router)` in the plugin's `serverFunctions.configure` module (see `start-mode.md`).
 
 ## Common mistakes on router 2
 
