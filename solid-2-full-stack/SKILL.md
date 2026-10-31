@@ -1,6 +1,6 @@
 ---
 name: solid-2-full-stack
-description: Guidance for building full-stack Solid 2 apps on `@solidjs/vite-plugin` start mode with `@solidjs/router` 2.x and `"use server"` functions, the setup that replaces SolidStart. Use this whenever the user configures `solid({ start, ssr, serverFunctions })`, writes entries, a Document, middleware, `setup`, or `env.ts`, or works with `createRouter`, typed `paths`, route preload, `query`, `liveQuery`, `formAction`, plain-anchor links, link preloading, server functions, `GET()`, `respond`, single-flight mutations, `virtual:solid-ssr-handler`, or deploying a Solid 2 SSR app. Use it for new Solid 2 full-stack apps even when the user says "SolidStart", unless the project actually depends on `@solidjs/start`.
+description: "Guidance for building full-stack Solid 2 apps on `@solidjs/vite-plugin` start mode with `@solidjs/router` 2.x and `\"use server\"` functions, the setup that replaces SolidStart. Use this whenever the user configures `solid({ start, ssr, serverFunctions })`, writes entries, a Document, middleware, `setup`, or `env.ts`, or works with `createRouter`, typed `paths`, route preload, `query`, `liveQuery`, `formAction`, plain-anchor links, link preloading, server functions, `GET()`, `respond`, single-flight mutations, `virtual:solid-ssr-handler`, or deploying a Solid 2 SSR app. Use it for new Solid 2 full-stack apps even when the user says \"SolidStart\", unless the project actually depends on `@solidjs/start`."
 ---
 
 # Solid 2 Full Stack

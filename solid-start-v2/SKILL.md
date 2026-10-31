@@ -1,6 +1,6 @@
 ---
 name: solid-start-v2
-description: Guidance for existing SolidStart v2 applications that depend on `@solidjs/start`: route, data, mutation, server, auth, middleware, metadata, and deployment patterns. Use this when the project has `@solidjs/start` in its dependencies or the user is maintaining or migrating a SolidStart app (`app.config.ts`, `@solidjs/start/http`, Vinxi or Nitro setups). For new Solid 2 full-stack apps, `@solidjs/vite-plugin` start mode, or `@solidjs/router` 2.x, use the `solid-2-full-stack` skill instead.
+description: "Guidance for existing SolidStart v2 applications that depend on `@solidjs/start`: route, data, mutation, server, auth, middleware, metadata, and deployment patterns. Use this when the project has `@solidjs/start` in its dependencies or the user is maintaining or migrating a SolidStart app (`app.config.ts`, `@solidjs/start/http`, Vinxi or Nitro setups). For new Solid 2 full-stack apps, `@solidjs/vite-plugin` start mode, or `@solidjs/router` 2.x, use the `solid-2-full-stack` skill instead."
 ---
 
 # SolidStart v2
