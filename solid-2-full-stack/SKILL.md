@@ -45,6 +45,7 @@ src/middleware.ts     fetch-style middleware: auth, headers, REST endpoints
 
 - for `vite.config.ts` options, entries, SSR versus client mode, middleware, `setup`, typed env, error boundaries, the server-function endpoint and its `configure` module, `server-only` markers, hosts, build tuning, or tests: read `references/start-mode.md`
 - for routes, params, typed paths, links, preloading, `query`, `liveQuery`, `formAction`, submissions, single flight, search params, or navigation hooks: read `references/router-2.md`
+- for making the app work without JavaScript (no-JS fallbacks, GET-form filters, paging for virtual lists, mutations as forms posting to server functions, `@media (scripting: none)`, and testing with JavaScript disabled): read `references/progressive-enhancement.md`
 - for hydration rules, SSR suspension cost, `deferStream`, the hydration channel, `GET()`, `respond`, and server components: read `references/ssr-hydration-and-server-functions.md` in the Solid 2 API skill
 
 ## Quality checklist
@@ -58,6 +59,8 @@ Before finishing substantial work, check:
 - does server-only code stay out of client bundles (`server-only` marker, `virtual:env/server` only on the server)?
 - do server functions validate their inputs? Anything can call the endpoint.
 - are `httpStatus(404)` and redirects set during render where the route needs them?
+- if the app should work without JavaScript, is everything visible resolved before the shell flushes (not streamed in), and does a `javaScriptEnabled: false` test cover it?
+- does server markup avoid geometry the server cannot know (viewport width, element sizes), so hydration does not re-lay the page?
 - is the change verified in a production build (`vite build && vite preview`), not only in dev?
 
 ## Common corrections
@@ -72,3 +75,5 @@ Before finishing substantial work, check:
 | Registering the single-flight collector or CSRF origins in app code | `serverFunctions: { configure: "./src/server-config.ts" }` |
 | Running tests with the start plugin and wondering why server code acts like the client | Give server tests a Vitest project with `environment: "node"` |
 | Measuring performance only in dev | Measure `vite build && vite preview` or the deployed site |
+| No-JS controls rendered only on the server or inside `<noscript>` | Render them on both sides and show them with `@media (scripting: none)`, so hydration matches |
+| A delegated `onSubmit` that enhances a form posting to a server function | Attach the listener on the form element and `preventDefault()`; the router's document-level submit handler skips prevented events |

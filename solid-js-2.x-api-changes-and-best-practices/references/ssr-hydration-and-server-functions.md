@@ -26,6 +26,32 @@ Put `isServer` checks inside functions, not around primitives. A memo that genui
 
 Symptom to recognize: SSR output is correct, dev reports hydration key misses (two ids differing by one), and typing or clicking does nothing.
 
+## Layout parity: no geometry the server cannot know
+
+Matching owners is not enough: the server's markup should also look right on every screen, or hydration re-lays the page and it shifts. The server cannot know the viewport width or element sizes, so positions computed in JavaScript from a measured width (a virtual list's columns and row offsets, a masonry layout) are wrong on some screens until hydration.
+
+Put the geometry in CSS and pass only data-independent values from JavaScript, such as an item's index:
+
+```tsx
+<li class="virtual-cell" style={{ "--i": String(index) }}>…</li>
+```
+
+```css
+.list { --cols: 3; --row-h: 57px; }               /* .list's parent has container-type: inline-size */
+@container (max-width: 944px) { .list { --cols: 2; } }
+@container (max-width: 668px) { .list { --cols: 1; --row-h: 61px; } }
+
+.virtual-cell {
+  position: absolute;
+  height: var(--row-h);
+  width: calc(100% / var(--cols));
+  left: calc(mod(var(--i), var(--cols)) * 100% / var(--cols));
+  transform: translateY(calc(round(down, var(--i) / var(--cols), 1) * var(--row-h)));
+}
+```
+
+Keep the JavaScript breakpoints (used to pick which rows to render) the same as the CSS ones. In one app this took a mobile layout shift of 0.049 to 0 with no change for desktop.
+
 ## What hydration adopts
 
 - The browser adopts each async read the server answered (value or error) and does not ask again.

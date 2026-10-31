@@ -46,6 +46,19 @@
         "Returns respond(items, { revalidate: \"\" }) (or names the affected keys) from saveCart.",
         "Does not suggest removing query() or disabling caching as the fix."
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "My Solid 2 start-mode app server-renders a product search with a virtualized result list, filter dropdowns built from custom listboxes, and an optimistic add-to-cart action. Make it usable with JavaScript disabled without changing the experience for users who have JavaScript.",
+      "expected_output": "Preloaded data so rendered rows are in the HTML, GET-form filters and paging links shown with @media (scripting: none), cart buttons as forms posting to a server function and enhanced in the page, and a javaScriptEnabled: false test.",
+      "files": [],
+      "assertions": [
+        "Ensures everything visible is resolved before the shell flushes (loader or deferStream), noting streamed content needs a script to appear.",
+        "Renders the no-JS controls on both server and client and shows them with @media (scripting: none), rather than server-only or noscript markup.",
+        "Adds paging links with an offset param for the virtual list, with the server window starting at that offset.",
+        "Wraps the cart button in a form posting to a server function URL and handles submit in the page with preventDefault, keeping the optimistic action for JavaScript users.",
+        "Adds a Playwright test with javaScriptEnabled: false."
+      ]
     }
   ]
 }
